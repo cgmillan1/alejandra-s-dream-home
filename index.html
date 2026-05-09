@@ -1,30 +1,3 @@
-# Alejandra's Home Portfolio
-
-A personalized home-finder experience built by Cristian Millan, Real Brokerage Utah.
-
-Features: Tinder-style swipe interface, photo galleries, scoring, notes, must-haves checklist, side-by-side comparison, mortgage estimator (with Utah tax rates and S.B. 240 reminder), regional map view, and one-click PDF export for client summaries.
-
-All data saves to the browser's local storage, so Alejandra's progress persists between visits without any login required.
-
-## Editing the homes
-
-Open `index.html`, find the `HOMES` array near the top of the `<script>` section, and edit the entries. Each home needs:
-
-- `id`: a unique number
-- `address`, `city`: text
-- `region`: one of `'sj'` (South Jordan), `'wj'` (West Jordan), `'hm'` (Herriman), `'db'` (Daybreak)
-- `price`, `beds`, `baths`, `sqft`, `lot`: numbers / strings
-- `taxRate`: Utah county property tax rate as a decimal (typical 0.0062–0.0068)
-- `hoa`: monthly HOA in dollars
-- `features`: array of short tag strings
-- `imgs`: array of 3+ image URLs (Zillow, Realtor, MLS, etc.)
-- `url`: link to the full listing
-- `x`, `y`: position on the map view (0–100)
-
-## Resetting
-
-Alejandra can hit "Reset session" at the bottom to start over. To reset just her data on your end, open browser dev tools → Application → Local Storage → delete the `alejandra_lodge_v1` key.
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
