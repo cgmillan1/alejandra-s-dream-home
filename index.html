@@ -1,0 +1,922 @@
+# Alejandra's Home Portfolio
+
+A personalized home-finder experience built by Cristian Millan, Real Brokerage Utah.
+
+Features: Tinder-style swipe interface, photo galleries, scoring, notes, must-haves checklist, side-by-side comparison, mortgage estimator (with Utah tax rates and S.B. 240 reminder), regional map view, and one-click PDF export for client summaries.
+
+All data saves to the browser's local storage, so Alejandra's progress persists between visits without any login required.
+
+## Editing the homes
+
+Open `index.html`, find the `HOMES` array near the top of the `<script>` section, and edit the entries. Each home needs:
+
+- `id`: a unique number
+- `address`, `city`: text
+- `region`: one of `'sj'` (South Jordan), `'wj'` (West Jordan), `'hm'` (Herriman), `'db'` (Daybreak)
+- `price`, `beds`, `baths`, `sqft`, `lot`: numbers / strings
+- `taxRate`: Utah county property tax rate as a decimal (typical 0.0062–0.0068)
+- `hoa`: monthly HOA in dollars
+- `features`: array of short tag strings
+- `imgs`: array of 3+ image URLs (Zillow, Realtor, MLS, etc.)
+- `url`: link to the full listing
+- `x`, `y`: position on the map view (0–100)
+
+## Resetting
+
+Alejandra can hit "Reset session" at the bottom to start over. To reset just her data on your end, open browser dev tools → Application → Local Storage → delete the `alejandra_lodge_v1` key.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="description" content="Curated home portfolio for Alejandra Salomon, prepared by Cristian Millan, Real Brokerage Utah" />
+<title>Alejandra Salomon · Home Portfolio · Cristian Millan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #f0ebe0; color: #2d3e2f; min-height: 100vh; }
+  :root {
+    --font-sans: 'Inter', sans-serif;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+
+  .lodge-app { font-family: var(--font-sans); color: #2d3e2f; background: #faf7f0; min-height: 100vh; padding: 1.5rem; max-width: 720px; margin: 0 auto; position: relative; }
+  @media (min-width: 720px) { .lodge-app { margin: 20px auto; min-height: calc(100vh - 40px); border-radius: var(--border-radius-lg); box-shadow: 0 4px 24px rgba(45,62,47,0.08); } }
+  .lodge-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid rgba(45, 62, 47, 0.2); margin-bottom: 1.25rem; }
+  .lodge-brand { font-family: var(--font-serif); font-size: 22px; letter-spacing: 1px; color: #1a3a3a; font-weight: 600; }
+  .lodge-brand-sub { font-size: 11px; letter-spacing: 2px; color: #8a7c6a; text-transform: uppercase; margin-top: 2px; }
+  .lodge-greeting { text-align: right; }
+  .lodge-greeting-name { font-family: var(--font-serif); font-size: 17px; color: #1a3a3a; font-weight: 500; }
+  .lodge-greeting-sub { font-size: 11px; color: #8a7c6a; font-style: italic; }
+
+  .lodge-tabs { display: flex; gap: 4px; background: #f0ebe0; padding: 5px; border-radius: var(--border-radius-md); margin-bottom: 1.25rem; border: 1px solid rgba(45, 62, 47, 0.1); flex-wrap: wrap; }
+  .lodge-tab { flex: 1; min-width: 80px; padding: 9px 10px; font-size: 12px; font-weight: 500; text-align: center; color: #5a6a5a; cursor: pointer; border-radius: 6px; transition: all 0.2s; border: none; background: transparent; font-family: inherit; }
+  .lodge-tab:hover { background: rgba(26, 58, 58, 0.08); color: #1a3a3a; }
+  .lodge-tab.active { background: #1a3a3a; color: #faf7f0; font-weight: 600; }
+  .lodge-tab-count { display: inline-block; margin-left: 3px; padding: 1px 6px; background: rgba(0,0,0,0.1); border-radius: 8px; font-size: 10px; font-weight: 600; }
+  .lodge-tab.active .lodge-tab-count { background: #d4a574; color: #1a3a3a; }
+
+  .lodge-view { display: none; }
+  .lodge-view.active { display: block; }
+
+  .swipe-stack { position: relative; height: 540px; max-width: 380px; margin: 0 auto; }
+  .home-card { position: absolute; inset: 0; background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: var(--border-radius-lg); overflow: hidden; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s; cursor: grab; box-shadow: 0 2px 8px rgba(45, 62, 47, 0.06); touch-action: pan-y; }
+  .home-card.gone-right { transform: translateX(120%) rotate(20deg); opacity: 0; }
+  .home-card.gone-left { transform: translateX(-120%) rotate(-20deg); opacity: 0; }
+  .home-card.behind { transform: scale(0.95) translateY(8px); opacity: 0.6; }
+  .home-image-wrap { position: relative; height: 240px; background-color: #e8e4d8; overflow: hidden; user-select: none; }
+  .home-image { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .gallery-dots { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 2; }
+  .gallery-dot { width: 24px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; transition: background 0.2s; }
+  .gallery-dot.active { background: #fff; }
+  .gallery-nav { position: absolute; top: 0; bottom: 0; width: 35%; cursor: pointer; z-index: 1; }
+  .gallery-nav.prev { left: 0; }
+  .gallery-nav.next { right: 0; }
+  .home-image-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); z-index: 2; pointer-events: none; }
+  .home-price { font-family: var(--font-serif); font-size: 26px; color: #faf7f0; font-weight: 500; }
+  .home-stamp { position: absolute; top: 16px; padding: 8px 18px; border: 3px solid; border-radius: 4px; font-weight: 700; font-size: 18px; letter-spacing: 2px; opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 3; }
+  .home-stamp.like { right: 16px; color: #2d6a3a; border-color: #2d6a3a; transform: rotate(15deg); background: rgba(255,255,255,0.85); }
+  .home-stamp.dislike { left: 16px; color: #b85a3d; border-color: #b85a3d; transform: rotate(-15deg); background: rgba(255,255,255,0.85); }
+  .home-card.show-like .home-stamp.like { opacity: 1; }
+  .home-card.show-dislike .home-stamp.dislike { opacity: 1; }
+  .home-body { padding: 16px; }
+  .home-address { font-family: var(--font-serif); font-size: 18px; margin-bottom: 4px; color: #1a3a3a; font-weight: 500; }
+  .home-city { font-size: 11px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .home-specs { display: flex; gap: 14px; padding: 10px 0; border-top: 1px solid rgba(45, 62, 47, 0.15); border-bottom: 1px solid rgba(45, 62, 47, 0.15); margin-bottom: 12px; }
+  .spec { font-size: 12px; color: #4a5a4a; display: flex; align-items: center; gap: 4px; }
+  .spec i { color: #c08552; font-size: 14px; }
+  .home-features { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .feature-tag { font-size: 10px; padding: 4px 9px; background: rgba(192, 133, 82, 0.15); color: #8b5a2b; border-radius: 10px; letter-spacing: 0.5px; font-weight: 500; }
+  .home-actions-row { display: flex; gap: 8px; }
+  .home-link, .home-mort { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #1a3a3a; text-decoration: none; font-weight: 500; padding: 7px 11px; background: #f5f1ea; border-radius: 4px; cursor: pointer; border: none; font-family: inherit; }
+  .home-link:hover, .home-mort:hover { background: #1a3a3a; color: #faf7f0; }
+
+  .swipe-actions { display: flex; justify-content: center; gap: 24px; margin-top: 20px; padding: 16px; background: #fffdf7; border-radius: var(--border-radius-lg); border: 1px solid rgba(45, 62, 47, 0.15); box-shadow: 0 2px 8px rgba(45, 62, 47, 0.04); }
+  .swipe-btn { width: 64px; height: 64px; border-radius: 50%; border: 2px solid; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 26px; transition: all 0.15s; font-weight: 700; }
+  .swipe-btn:hover { transform: translateY(-3px) scale(1.05); }
+  .swipe-btn:active { transform: translateY(-1px) scale(0.98); }
+  .swipe-btn.dislike { background: #fef0eb; border-color: #b85a3d; color: #b85a3d; }
+  .swipe-btn.dislike:hover { background: #b85a3d; color: #faf7f0; }
+  .swipe-btn.note { background: #fffdf7; border-color: #c08552; color: #8b5a2b; }
+  .swipe-btn.note:hover { background: #c08552; color: #faf7f0; }
+  .swipe-btn.like { background: #ebf5ee; border-color: #2d6a3a; color: #2d6a3a; }
+  .swipe-btn.like:hover { background: #2d6a3a; color: #faf7f0; }
+  .swipe-btn-label { display: block; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; text-align: center; color: #8a7c6a; font-weight: 500; }
+  .swipe-btn-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+  .progress-bar { height: 4px; background: rgba(45, 62, 47, 0.15); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #c08552; transition: width 0.3s; }
+  .empty-state { text-align: center; padding: 60px 20px; color: #8a7c6a; }
+  .empty-state i { font-size: 48px; color: #c08552; margin-bottom: 12px; }
+  .empty-state h3 { font-family: var(--font-serif); color: #1a3a3a; margin: 0 0 8px; font-size: 20px; }
+
+  .liked-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .liked-card { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.15); border-radius: var(--border-radius-md); padding: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(45, 62, 47, 0.04); }
+  .liked-card:hover { border-color: #c08552; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(45, 62, 47, 0.08); }
+  .liked-card.selected { border-color: #1a3a3a; background: #f5f1ea; }
+  .liked-thumb { width: 100%; height: 100px; border-radius: 4px; background-size: cover; background-position: center; margin-bottom: 8px; background-color: #e8e4d8; }
+  .liked-price { font-family: var(--font-serif); color: #1a3a3a; font-size: 17px; font-weight: 500; }
+  .liked-addr { font-size: 11px; color: #4a5a4a; margin: 2px 0; }
+  .liked-score { font-size: 10px; color: #8a7c6a; }
+  .liked-score .stars { color: #c08552; }
+
+  .checklist { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.15); border-radius: var(--border-radius-md); padding: 16px; box-shadow: 0 1px 4px rgba(45, 62, 47, 0.04); }
+  .checklist-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 16px; margin-bottom: 12px; font-weight: 500; }
+  .check-row { display: flex; align-items: center; gap: 10px; padding: 8px 6px; font-size: 13px; cursor: pointer; border-radius: 4px; transition: background 0.15s; }
+  .check-row:hover { background: rgba(192, 133, 82, 0.08); }
+  .check-box { width: 20px; height: 20px; border: 2px solid rgba(45, 62, 47, 0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #faf7f0; transition: all 0.15s; background: #fffdf7; }
+  .check-row.checked .check-box { background: #1a3a3a; border-color: #1a3a3a; }
+  .check-row.checked .check-label { color: #1a3a3a; font-weight: 500; }
+  .check-label { color: #4a5a4a; flex: 1; }
+
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(26, 58, 58, 0.65); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-backdrop.active { display: flex; }
+  .modal-card { background: #fffdf7; border: 2px solid #1a3a3a; border-radius: var(--border-radius-lg); padding: 20px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+  .modal-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 19px; margin-bottom: 12px; font-weight: 500; }
+  .modal-textarea { width: 100%; min-height: 80px; background: #faf7f0; border: 1px solid rgba(45, 62, 47, 0.25); border-radius: 4px; padding: 10px; color: #2d3e2f; font-family: inherit; font-size: 13px; resize: vertical; }
+  .score-row { display: flex; gap: 4px; margin: 12px 0; flex-wrap: wrap; }
+  .score-star { font-size: 24px; cursor: pointer; color: #d4cdbe; transition: color 0.1s; }
+  .score-star.active { color: #c08552; }
+  .room-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 16px; }
+  .room-tag { font-size: 11px; padding: 5px 11px; background: #faf7f0; border: 1px solid rgba(45, 62, 47, 0.25); color: #4a5a4a; border-radius: 12px; cursor: pointer; transition: all 0.15s; }
+  .room-tag:hover { border-color: #c08552; }
+  .room-tag.active { background: #1a3a3a; color: #faf7f0; border-color: #1a3a3a; font-weight: 500; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .modal-btn { flex: 1; min-width: 90px; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 12px; cursor: pointer; border: 2px solid; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; transition: all 0.15s; }
+  .modal-btn.primary { background: #1a3a3a; color: #faf7f0; border-color: #1a3a3a; }
+  .modal-btn.primary:hover { background: #2d5050; }
+  .modal-btn.secondary { background: transparent; color: #4a5a4a; border-color: rgba(45, 62, 47, 0.3); }
+  .modal-btn.secondary:hover { border-color: #c08552; color: #8b5a2b; }
+
+  .compare-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #4a5a4a; padding: 12px; background: #fffdf7; border-radius: var(--border-radius-md); border: 1px solid rgba(45, 62, 47, 0.15); flex-wrap: wrap; gap: 8px; }
+  .compare-btn { padding: 10px 18px; background: #1a3a3a; color: #faf7f0; border: none; border-radius: 6px; font-family: inherit; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; transition: all 0.15s; }
+  .compare-btn:hover:not(:disabled) { background: #2d5050; transform: translateY(-1px); }
+  .compare-btn:disabled { background: #d4cdbe; color: #8a7c6a; cursor: not-allowed; }
+  .compare-grid { display: grid; gap: 12px; margin-top: 12px; }
+  .compare-col { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: var(--border-radius-md); padding: 12px; }
+  .compare-col h4 { font-family: var(--font-serif); color: #1a3a3a; font-size: 14px; margin: 0 0 8px; }
+  .compare-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; border-bottom: 1px solid rgba(45, 62, 47, 0.08); }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-label { color: #8a7c6a; }
+  .compare-val { color: #1a3a3a; font-weight: 500; }
+
+  .realtor-panel { background: #1a3a3a; border-radius: var(--border-radius-md); padding: 16px; margin-bottom: 16px; }
+  .realtor-panel h3 { font-family: var(--font-serif); color: #d4a574; margin: 0 0 4px; font-size: 17px; font-weight: 500; }
+  .realtor-panel p { font-size: 11px; color: #a8b8a8; margin: 0 0 12px; font-style: italic; }
+  .realtor-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat-box { background: rgba(212, 165, 116, 0.15); border: 1px solid rgba(212, 165, 116, 0.3); border-radius: 4px; padding: 10px; text-align: center; }
+  .stat-num { font-family: var(--font-serif); color: #d4a574; font-size: 24px; font-weight: 500; }
+  .stat-lbl { font-size: 9px; color: #c8d0c4; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .export-btn { width: 100%; padding: 11px; background: #d4a574; color: #1a3a3a; border: none; border-radius: 6px; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; transition: all 0.15s; }
+  .export-btn:hover { background: #e0b585; }
+
+  .lodge-footer { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(45, 62, 47, 0.15); text-align: center; font-size: 10px; color: #8a7c6a; letter-spacing: 1px; }
+  .reset-link { color: #8a7c6a; cursor: pointer; text-decoration: underline; font-size: 10px; }
+  .reset-link:hover { color: #1a3a3a; }
+
+  .swipe-hint { text-align: center; font-size: 11px; color: #8a7c6a; margin: 8px 0; letter-spacing: 1px; font-style: italic; }
+
+  .mort-grid { display: grid; gap: 10px; margin: 8px 0 14px; }
+  .mort-row { display: flex; align-items: center; gap: 10px; }
+  .mort-label { font-size: 11px; color: #8a7c6a; min-width: 90px; }
+  .mort-value { font-size: 13px; color: #1a3a3a; font-weight: 500; min-width: 70px; text-align: right; }
+  .mort-slider { flex: 1; -webkit-appearance: none; height: 4px; background: #e8e4d8; border-radius: 2px; outline: none; }
+  .mort-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #1a3a3a; border-radius: 50%; cursor: pointer; }
+  .mort-slider::-moz-range-thumb { width: 18px; height: 18px; background: #1a3a3a; border-radius: 50%; cursor: pointer; border: none; }
+  .mort-summary { background: #f5f1ea; border-left: 3px solid #c08552; padding: 12px; border-radius: 4px; margin-top: 8px; }
+  .mort-monthly { font-family: var(--font-serif); color: #1a3a3a; font-size: 30px; font-weight: 500; }
+  .mort-monthly-lbl { font-size: 10px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+  .mort-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(45, 62, 47, 0.12); }
+  .mort-mini { font-size: 10px; }
+  .mort-mini-lbl { color: #8a7c6a; }
+  .mort-mini-val { color: #1a3a3a; font-weight: 500; font-size: 13px; }
+
+  .map-container { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.15); border-radius: var(--border-radius-md); padding: 16px; }
+  .map-svg-wrap { background: #f5f1ea; border-radius: 6px; padding: 14px; margin-top: 8px; }
+  .map-pin { cursor: pointer; transition: transform 0.15s; }
+  .map-pin:hover { transform: scale(1.15); }
+  .map-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; color: #8a7c6a; margin-top: 10px; }
+  .map-legend-item { display: flex; align-items: center; gap: 4px; }
+  .map-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .pwa-install { position: fixed; bottom: 16px; left: 16px; right: 16px; background: #1a3a3a; color: #faf7f0; padding: 12px 16px; border-radius: 8px; font-size: 13px; display: none; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 50; }
+  .pwa-install.show { display: flex; }
+  .pwa-install button { background: #d4a574; color: #1a3a3a; border: none; padding: 8px 14px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+  .pwa-install .close { background: transparent; color: #a8b8a8; padding: 4px 8px; }
+</style>
+</head>
+<body>
+
+<div class="lodge-app" id="lodge-app">
+  <div class="lodge-header">
+    <div>
+      <div class="lodge-brand">CRISTIAN MILLAN</div>
+      <div class="lodge-brand-sub">Real Brokerage · Utah</div>
+    </div>
+    <div class="lodge-greeting">
+      <div class="lodge-greeting-name">Alejandra Salomon</div>
+      <div class="lodge-greeting-sub">Your home journey</div>
+    </div>
+  </div>
+
+  <div class="lodge-tabs">
+    <button class="lodge-tab active" data-tab="discover">Discover</button>
+    <button class="lodge-tab" data-tab="liked">Loved <span class="lodge-tab-count" id="count-liked">0</span></button>
+    <button class="lodge-tab" data-tab="map">Map</button>
+    <button class="lodge-tab" data-tab="checklist">Must-Haves</button>
+    <button class="lodge-tab" data-tab="compare">Compare</button>
+  </div>
+
+  <div class="lodge-view active" id="view-discover">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="swipe-stack" id="stack"></div>
+    <div class="swipe-hint">Swipe or tap a button below</div>
+    <div class="swipe-actions" id="actions" style="display: none;">
+      <div class="swipe-btn-wrap">
+        <button class="swipe-btn dislike" onclick="lodgeApp.swipe('left')" aria-label="Pass"><i class="ti ti-x"></i></button>
+        <span class="swipe-btn-label">Pass</span>
+      </div>
+      <div class="swipe-btn-wrap">
+        <button class="swipe-btn note" onclick="lodgeApp.openNote()" aria-label="Note"><i class="ti ti-edit"></i></button>
+        <span class="swipe-btn-label">Note</span>
+      </div>
+      <div class="swipe-btn-wrap">
+        <button class="swipe-btn like" onclick="lodgeApp.swipe('right')" aria-label="Love"><i class="ti ti-heart"></i></button>
+        <span class="swipe-btn-label">Love</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lodge-view" id="view-liked">
+    <div class="realtor-panel">
+      <h3>For Cristian's Eyes</h3>
+      <p>Alejandra's saved selections, ready for showings and follow-up.</p>
+      <div class="realtor-stats">
+        <div class="stat-box"><div class="stat-num" id="stat-loved">0</div><div class="stat-lbl">Loved</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-avg">0</div><div class="stat-lbl">Avg Score</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-budget">$0</div><div class="stat-lbl">Avg Price</div></div>
+      </div>
+      <button class="export-btn" onclick="lodgeApp.exportPDF()"><i class="ti ti-download"></i> Export client summary (PDF)</button>
+    </div>
+    <div class="liked-grid" id="liked-grid"></div>
+  </div>
+
+  <div class="lodge-view" id="view-map">
+    <div class="map-container">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="checklist-title" style="margin:0">Loved homes map</div>
+        <div style="font-size:11px;color:#8a7c6a"><span id="map-count">0</span> homes</div>
+      </div>
+      <div class="map-svg-wrap" id="map-area"></div>
+      <div class="map-legend">
+        <div class="map-legend-item"><span class="map-legend-dot" style="background:#2d6a3a"></span>South Jordan</div>
+        <div class="map-legend-item"><span class="map-legend-dot" style="background:#c08552"></span>West Jordan</div>
+        <div class="map-legend-item"><span class="map-legend-dot" style="background:#1a3a3a"></span>Herriman</div>
+        <div class="map-legend-item"><span class="map-legend-dot" style="background:#8b5a2b"></span>Daybreak</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lodge-view" id="view-checklist">
+    <div class="checklist">
+      <div class="checklist-title">Alejandra's Must-Haves</div>
+      <div id="checklist-items"></div>
+    </div>
+  </div>
+
+  <div class="lodge-view" id="view-compare">
+    <div class="compare-toolbar">
+      <span id="compare-info">Select 2-3 loved homes to compare</span>
+      <button class="compare-btn" id="compare-btn" onclick="lodgeApp.runCompare()" disabled>Compare</button>
+    </div>
+    <div id="compare-area"></div>
+  </div>
+
+  <div class="lodge-footer">CMR LUXURY HOME CURATION · <span class="reset-link" onclick="lodgeApp.reset()">Reset session</span></div>
+</div>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal-card" id="modal-content"></div>
+</div>
+
+<script>
+// =============================================================
+// EDIT YOUR HOMES HERE
+// Add or remove homes in this array. Each home needs all fields.
+// imgs: array of image URLs (3+ recommended). Use Zillow, Realtor, or MLS photos.
+// region: 'sj' (South Jordan), 'wj' (West Jordan), 'hm' (Herriman), 'db' (Daybreak)
+// taxRate: Utah county property tax rate as a decimal (typical 0.0062-0.0068)
+// hoa: monthly HOA in dollars (0 if none)
+// x, y: position on the map view (0-100). Roughly: West (low x), East (high x), North (low y), South (high y)
+// url: link to the full listing on Zillow/Realtor/builder site
+// =============================================================
+const HOMES = [
+  {
+    id: 1,
+    address: '4218 Daybreak Ridge',
+    city: 'South Jordan, UT',
+    region: 'sj',
+    price: 685000,
+    beds: 4,
+    baths: 3,
+    sqft: 2840,
+    lot: '0.18 ac',
+    taxRate: 0.0065,
+    hoa: 95,
+    features: ['Mountain views', 'New build', 'Gourmet kitchen', 'Lake access'],
+    imgs: [
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 60, y: 35
+  },
+  {
+    id: 2,
+    address: '7892 Oakcrest Lane',
+    city: 'West Jordan, UT',
+    region: 'wj',
+    price: 549000,
+    beds: 3,
+    baths: 2.5,
+    sqft: 2410,
+    lot: '0.22 ac',
+    taxRate: 0.0062,
+    hoa: 0,
+    features: ['Holmes Homes', 'Smart home', 'Open concept', '3-car garage'],
+    imgs: [
+      'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 30, y: 25
+  },
+  {
+    id: 3,
+    address: '11240 Riverstone Way',
+    city: 'South Jordan, UT',
+    region: 'sj',
+    price: 729000,
+    beds: 5,
+    baths: 3.5,
+    sqft: 3120,
+    lot: '0.25 ac',
+    taxRate: 0.0065,
+    hoa: 75,
+    features: ['Destination Homes', 'Walk-in pantry', 'Master on main', 'Covered patio'],
+    imgs: [
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 70, y: 50
+  },
+  {
+    id: 4,
+    address: '6105 Mountain View Dr',
+    city: 'Herriman, UT',
+    region: 'hm',
+    price: 612000,
+    beds: 4,
+    baths: 3,
+    sqft: 2680,
+    lot: '0.20 ac',
+    taxRate: 0.0068,
+    hoa: 50,
+    features: ['Woodside Homes', 'Quartz counters', 'Trail access', 'Tile flooring'],
+    imgs: [
+      'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600210492493-0946911123ea?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600585152915-d208bec867a1?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 40, y: 75
+  },
+  {
+    id: 5,
+    address: '3477 Aspen Hollow',
+    city: 'Daybreak, UT',
+    region: 'db',
+    price: 795000,
+    beds: 5,
+    baths: 4,
+    sqft: 3450,
+    lot: '0.28 ac',
+    taxRate: 0.0065,
+    hoa: 110,
+    features: ['Lake views', 'Finished basement', 'Casita', 'Solar ready'],
+    imgs: [
+      'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 55, y: 45
+  },
+  {
+    id: 6,
+    address: '8821 Silverleaf Cove',
+    city: 'South Jordan, UT',
+    region: 'sj',
+    price: 575000,
+    beds: 4,
+    baths: 2.5,
+    sqft: 2520,
+    lot: '0.17 ac',
+    taxRate: 0.0065,
+    hoa: 60,
+    features: ['Park-adjacent', 'Open kitchen', 'Vaulted ceilings', 'Office nook'],
+    imgs: [
+      'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600573472556-e636c2acda88?w=600&h=400&fit=crop',
+      'https://images.unsplash.com/photo-1600585154084-4e5fe7c39198?w=600&h=400&fit=crop'
+    ],
+    url: 'https://www.zillow.com/',
+    x: 65, y: 60
+  }
+];
+// =============================================================
+
+const REGION_COLOR = { sj: '#2d6a3a', wj: '#c08552', hm: '#1a3a3a', db: '#8b5a2b' };
+const MUST_HAVES = ['3+ bedrooms', '2+ bathrooms', 'Open kitchen', 'Master on main', '2-car garage', 'Mountain views', 'New construction', 'Walk-in closet', 'Office space', 'Outdoor patio', 'Quiet street', 'Near schools'];
+const ROOMS = ['Kitchen', 'Master Suite', 'Living Room', 'Backyard', 'Office', 'Basement', 'Garage', 'Bathroom'];
+const STORAGE_KEY = 'alejandra_lodge_v1';
+
+const state = { idx: 0, liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], galleryIdx: {} };
+
+function load() {
+  try { const v = localStorage.getItem(STORAGE_KEY); if (v) Object.assign(state, JSON.parse(v)); } catch (e) {}
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+const el = (id) => document.getElementById(id);
+const fmtPrice = (p) => '$' + (p / 1000).toFixed(0) + 'k';
+const fmtFull = (p) => '$' + Math.round(p).toLocaleString();
+
+function calcMortgage(price, downPct, rate, years) {
+  const dp = price * (downPct / 100);
+  const principal = price - dp;
+  const r = rate / 100 / 12;
+  const n = years * 12;
+  const pi = principal * (r * Math.pow(1+r, n)) / (Math.pow(1+r, n) - 1);
+  return { dp, principal, pi, n };
+}
+
+function renderStack() {
+  const stack = el('stack');
+  const remaining = HOMES.slice(state.idx);
+  if (remaining.length === 0) {
+    stack.innerHTML = '<div class="empty-state"><i class="ti ti-confetti"></i><h3>You\'ve seen them all!</h3><p>Check your loved homes and we\'ll set up showings.</p></div>';
+    el('actions').style.display = 'none';
+    el('progress').style.width = '100%';
+    return;
+  }
+  el('actions').style.display = 'flex';
+  el('progress').style.width = ((state.idx / HOMES.length) * 100) + '%';
+  stack.innerHTML = remaining.slice(0, 3).reverse().map((h, i, arr) => {
+    const isTop = i === arr.length - 1;
+    const gIdx = state.galleryIdx[h.id] || 0;
+    const dots = h.imgs.map((_, di) => `<div class="gallery-dot ${di === gIdx ? 'active' : ''}"></div>`).join('');
+    return `<div class="home-card ${!isTop ? 'behind' : ''}" data-id="${h.id}" style="z-index:${i+1}">
+      <div class="home-stamp like">LOVE</div>
+      <div class="home-stamp dislike">PASS</div>
+      <div class="home-image-wrap">
+        <div class="home-image" style="background-image:url('${h.imgs[gIdx]}')"></div>
+        <div class="gallery-dots">${dots}</div>
+        <div class="gallery-nav prev" onclick="event.stopPropagation();lodgeApp.galleryNav(${h.id},-1)"></div>
+        <div class="gallery-nav next" onclick="event.stopPropagation();lodgeApp.galleryNav(${h.id},1)"></div>
+        <div class="home-image-overlay">
+          <div class="home-price">${fmtFull(h.price)}</div>
+        </div>
+      </div>
+      <div class="home-body">
+        <div class="home-address">${h.address}</div>
+        <div class="home-city">${h.city}</div>
+        <div class="home-specs">
+          <div class="spec"><i class="ti ti-bed"></i>${h.beds} bd</div>
+          <div class="spec"><i class="ti ti-bath"></i>${h.baths} ba</div>
+          <div class="spec"><i class="ti ti-ruler"></i>${h.sqft.toLocaleString()} sf</div>
+          <div class="spec"><i class="ti ti-trees"></i>${h.lot}</div>
+        </div>
+        <div class="home-features">${h.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}</div>
+        <div class="home-actions-row">
+          <button class="home-mort" onclick="event.stopPropagation();lodgeApp.openMortgage(${h.id})"><i class="ti ti-calculator"></i> Mortgage</button>
+          <a class="home-link" href="${h.url}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> Listing</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  attachDrag();
+}
+
+function galleryNav(id, dir) {
+  const h = HOMES.find(x => x.id === id);
+  const cur = state.galleryIdx[id] || 0;
+  state.galleryIdx[id] = (cur + dir + h.imgs.length) % h.imgs.length;
+  save();
+  renderStack();
+}
+
+function attachDrag() {
+  const top = el('stack').querySelector('.home-card:not(.behind)');
+  if (!top) return;
+  let startX = 0, startY = 0, dx = 0, dy = 0, dragging = false, intent = null;
+  top.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.gallery-nav') || e.target.closest('.home-mort') || e.target.closest('.home-link')) return;
+    dragging = true; startX = e.clientX; startY = e.clientY; intent = null;
+    top.style.transition = 'none'; top.setPointerCapture(e.pointerId);
+  });
+  top.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    dx = e.clientX - startX; dy = e.clientY - startY;
+    if (!intent && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) intent = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v';
+    if (intent !== 'h') return;
+    top.style.transform = `translateX(${dx}px) rotate(${dx * 0.05}deg)`;
+    top.classList.toggle('show-like', dx > 50);
+    top.classList.toggle('show-dislike', dx < -50);
+  });
+  top.addEventListener('pointerup', () => {
+    dragging = false;
+    top.style.transition = '';
+    if (intent === 'h' && dx > 100) swipe('right');
+    else if (intent === 'h' && dx < -100) swipe('left');
+    else { top.style.transform = ''; top.classList.remove('show-like', 'show-dislike'); }
+    dx = 0; dy = 0;
+  });
+}
+
+function swipe(dir) {
+  const home = HOMES[state.idx];
+  if (!home) return;
+  const top = el('stack').querySelector('.home-card:not(.behind)');
+  if (top) top.classList.add(dir === 'right' ? 'gone-right' : 'gone-left');
+  if (dir === 'right') state.liked.push(home.id);
+  else state.disliked.push(home.id);
+  state.idx++;
+  save();
+  setTimeout(() => { renderStack(); updateCounts(); }, 350);
+}
+
+function updateCounts() {
+  el('count-liked').textContent = state.liked.length;
+  el('stat-loved').textContent = state.liked.length;
+  const scores = state.liked.map(id => state.scores[id]).filter(Boolean);
+  el('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : '0';
+  const liked = state.liked.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
+  const avgP = liked.length ? liked.reduce((s,h)=>s+h.price,0) / liked.length : 0;
+  el('stat-budget').textContent = avgP ? fmtPrice(avgP) : '$0';
+  el('map-count').textContent = state.liked.length;
+}
+
+function renderLiked() {
+  const grid = el('liked-grid');
+  if (state.liked.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-heart"></i><h3>No loves yet</h3><p>Swipe right or tap Love and they\'ll appear here.</p></div>';
+    return;
+  }
+  grid.innerHTML = state.liked.map(id => {
+    const h = HOMES.find(x => x.id === id);
+    if (!h) return '';
+    const score = state.scores[id] || 0;
+    const sel = state.compareIds.includes(id) ? 'selected' : '';
+    return `<div class="liked-card ${sel}" onclick="lodgeApp.openLiked(${id})">
+      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}')"></div>
+      <div class="liked-price">${fmtFull(h.price)}</div>
+      <div class="liked-addr">${h.address}</div>
+      <div class="liked-addr" style="font-size:10px">${h.city}</div>
+      <div class="liked-score"><span class="stars">${'★'.repeat(score)}${'☆'.repeat(10-score)}</span> ${score}/10</div>
+    </div>`;
+  }).join('');
+}
+
+function renderMap() {
+  const liked = state.liked.map(id => HOMES.find(x => x.id === id)).filter(Boolean);
+  if (liked.length === 0) {
+    el('map-area').innerHTML = '<div class="empty-state"><i class="ti ti-map-pin"></i><h3>No homes mapped yet</h3><p>Loved homes will appear on the map.</p></div>';
+    return;
+  }
+  const pins = liked.map(home => {
+    const color = REGION_COLOR[home.region] || '#1a3a3a';
+    return `<g class="map-pin" onclick="lodgeApp.openLiked(${home.id})">
+      <circle cx="${home.x}" cy="${home.y}" r="3.5" fill="${color}" stroke="#fffdf7" stroke-width="0.8"/>
+      <text x="${home.x}" y="${home.y - 5}" text-anchor="middle" font-size="3" fill="#1a3a3a" font-weight="500">${fmtPrice(home.price)}</text>
+    </g>`;
+  }).join('');
+  el('map-area').innerHTML = `
+    <svg viewBox="0 0 100 100" style="width:100%;height:300px;display:block">
+      <rect x="0" y="0" width="100" height="100" fill="#e8e4d8" rx="3"/>
+      <path d="M 0 80 Q 25 75, 50 78 T 100 75" stroke="#a8b8a8" stroke-width="0.4" fill="none" opacity="0.6"/>
+      <path d="M 20 0 L 22 100" stroke="#c8d0c4" stroke-width="0.3" fill="none" opacity="0.5"/>
+      <path d="M 50 0 L 52 100" stroke="#c8d0c4" stroke-width="0.3" fill="none" opacity="0.5"/>
+      <path d="M 80 0 L 82 100" stroke="#c8d0c4" stroke-width="0.3" fill="none" opacity="0.5"/>
+      <text x="2" y="6" font-size="2.5" fill="#8a7c6a" font-style="italic">Salt Lake County</text>
+      <text x="2" y="98" font-size="2" fill="#8a7c6a">Herriman →</text>
+      <text x="60" y="98" font-size="2" fill="#8a7c6a">Daybreak/SJ</text>
+      ${pins}
+    </svg>`;
+}
+
+function renderChecklist() {
+  el('checklist-items').innerHTML = MUST_HAVES.map(item => {
+    const checked = state.mustHaves[item] ? 'checked' : '';
+    return `<div class="check-row ${checked}" onclick="lodgeApp.toggleMust('${item.replace(/'/g, "\\'")}')">
+      <div class="check-box">${state.mustHaves[item] ? '<i class="ti ti-check"></i>' : ''}</div>
+      <div class="check-label">${item}</div>
+    </div>`;
+  }).join('');
+}
+
+function openLiked(id) {
+  const h = HOMES.find(x => x.id === id);
+  const score = state.scores[id] || 0;
+  const note = state.notes[id] || '';
+  const rooms = state.rooms[id] || [];
+  const inCompare = state.compareIds.includes(id);
+  el('modal-content').innerHTML = `
+    <div class="modal-title">${h.address}</div>
+    <div style="font-size:11px;color:#8a7c6a;margin-bottom:12px">${h.city} · ${fmtFull(h.price)}</div>
+    <div style="font-size:12px;color:#4a5a4a;margin-bottom:6px">Your score (1-10)</div>
+    <div class="score-row">${[1,2,3,4,5,6,7,8,9,10].map(n => `<span class="score-star ${n<=score?'active':''}" onclick="lodgeApp.setScore(${id},${n})">★</span>`).join('')}</div>
+    <div style="font-size:12px;color:#4a5a4a;margin-bottom:6px">Favorite rooms</div>
+    <div class="room-tags">${ROOMS.map(r => `<span class="room-tag ${rooms.includes(r)?'active':''}" onclick="lodgeApp.toggleRoom(${id},'${r}')">${r}</span>`).join('')}</div>
+    <div style="font-size:12px;color:#4a5a4a;margin-bottom:6px">Notes for Cristian</div>
+    <textarea class="modal-textarea" id="note-input" placeholder="What stood out? Concerns? Questions for the seller...">${note}</textarea>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="lodgeApp.openMortgage(${id})">Mortgage</button>
+      <button class="modal-btn secondary" onclick="lodgeApp.toggleCompare(${id})">${inCompare ? 'Remove' : 'Compare'}</button>
+      <button class="modal-btn primary" onclick="lodgeApp.saveLikedDetails(${id})">Save</button>
+    </div>`;
+  el('modal').classList.add('active');
+}
+
+function openMortgage(id) {
+  const h = HOMES.find(x => x.id === id);
+  const downPct = 10, rate = 6.5, years = 30;
+  el('modal-content').innerHTML = `
+    <div class="modal-title">Mortgage estimator</div>
+    <div style="font-size:11px;color:#8a7c6a;margin-bottom:14px">${h.address} · ${fmtFull(h.price)}</div>
+    <div class="mort-grid">
+      <div class="mort-row">
+        <div class="mort-label">Down payment</div>
+        <input type="range" class="mort-slider" id="m-down" min="3" max="30" value="${downPct}" step="1" oninput="lodgeApp.updateMort(${id})"/>
+        <div class="mort-value" id="m-down-v">${downPct}%</div>
+      </div>
+      <div class="mort-row">
+        <div class="mort-label">Interest rate</div>
+        <input type="range" class="mort-slider" id="m-rate" min="40" max="90" value="${rate*10}" step="1" oninput="lodgeApp.updateMort(${id})"/>
+        <div class="mort-value" id="m-rate-v">${rate.toFixed(1)}%</div>
+      </div>
+      <div class="mort-row">
+        <div class="mort-label">Loan term</div>
+        <input type="range" class="mort-slider" id="m-years" min="15" max="30" value="${years}" step="5" oninput="lodgeApp.updateMort(${id})"/>
+        <div class="mort-value" id="m-years-v">${years} yr</div>
+      </div>
+    </div>
+    <div class="mort-summary">
+      <div class="mort-monthly-lbl">Estimated monthly</div>
+      <div class="mort-monthly" id="m-monthly">$0</div>
+      <div class="mort-breakdown">
+        <div class="mort-mini"><div class="mort-mini-lbl">Principal &amp; interest</div><div class="mort-mini-val" id="m-pi">$0</div></div>
+        <div class="mort-mini"><div class="mort-mini-lbl">Property tax</div><div class="mort-mini-val" id="m-tax">$0</div></div>
+        <div class="mort-mini"><div class="mort-mini-lbl">Insurance (est.)</div><div class="mort-mini-val" id="m-ins">$0</div></div>
+        <div class="mort-mini"><div class="mort-mini-lbl">HOA</div><div class="mort-mini-val" id="m-hoa">$${h.hoa}</div></div>
+        <div class="mort-mini"><div class="mort-mini-lbl">Down payment</div><div class="mort-mini-val" id="m-dp">$0</div></div>
+        <div class="mort-mini"><div class="mort-mini-lbl">Loan amount</div><div class="mort-mini-val" id="m-loan">$0</div></div>
+      </div>
+    </div>
+    <div style="font-size:10px;color:#8a7c6a;margin-top:10px;font-style:italic">Estimate only. Talk to Cristian for actual lender quotes and S.B. 240 grant eligibility.</div>
+    <div class="modal-btns">
+      <button class="modal-btn primary" onclick="lodgeApp.closeModal()">Close</button>
+    </div>`;
+  el('modal').classList.add('active');
+  updateMort(id);
+}
+
+function updateMort(id) {
+  const h = HOMES.find(x => x.id === id);
+  const downPct = +el('m-down').value;
+  const rate = +el('m-rate').value / 10;
+  const years = +el('m-years').value;
+  el('m-down-v').textContent = downPct + '%';
+  el('m-rate-v').textContent = rate.toFixed(1) + '%';
+  el('m-years-v').textContent = years + ' yr';
+  const m = calcMortgage(h.price, downPct, rate, years);
+  const tax = h.price * h.taxRate / 12;
+  const ins = h.price * 0.0035 / 12;
+  const total = m.pi + tax + ins + h.hoa;
+  el('m-monthly').textContent = fmtFull(total);
+  el('m-pi').textContent = fmtFull(m.pi);
+  el('m-tax').textContent = fmtFull(tax);
+  el('m-ins').textContent = fmtFull(ins);
+  el('m-dp').textContent = fmtFull(m.dp);
+  el('m-loan').textContent = fmtFull(m.principal);
+}
+
+function openNote() {
+  const home = HOMES[state.idx];
+  if (!home) return;
+  el('modal-content').innerHTML = `
+    <div class="modal-title">Quick note</div>
+    <div style="font-size:11px;color:#8a7c6a;margin-bottom:12px">${home.address}</div>
+    <textarea class="modal-textarea" id="note-input" placeholder="First impressions...">${state.notes[home.id] || ''}</textarea>
+    <div class="modal-btns">
+      <button class="modal-btn secondary" onclick="lodgeApp.closeModal()">Cancel</button>
+      <button class="modal-btn primary" onclick="lodgeApp.saveQuickNote(${home.id})">Save</button>
+    </div>`;
+  el('modal').classList.add('active');
+}
+
+function setScore(id, n) {
+  state.scores[id] = n;
+  document.querySelectorAll('.score-star').forEach((s, i) => s.classList.toggle('active', i < n));
+  save();
+}
+
+function toggleRoom(id, r) {
+  state.rooms[id] = state.rooms[id] || [];
+  const i = state.rooms[id].indexOf(r);
+  if (i >= 0) state.rooms[id].splice(i, 1); else state.rooms[id].push(r);
+  openLiked(id);
+  save();
+}
+
+function toggleMust(item) {
+  state.mustHaves[item] = !state.mustHaves[item];
+  renderChecklist();
+  save();
+}
+
+function saveLikedDetails(id) {
+  state.notes[id] = el('note-input').value;
+  save();
+  closeModal();
+  renderLiked();
+  updateCounts();
+}
+
+function saveQuickNote(id) {
+  state.notes[id] = el('note-input').value;
+  save();
+  closeModal();
+}
+
+function toggleCompare(id) {
+  const i = state.compareIds.indexOf(id);
+  if (i >= 0) state.compareIds.splice(i, 1);
+  else if (state.compareIds.length < 3) state.compareIds.push(id);
+  save();
+  closeModal();
+  renderLiked();
+}
+
+function runCompare() {
+  const homes = state.compareIds.map(id => HOMES.find(h => h.id === id));
+  const cols = homes.length;
+  el('compare-area').innerHTML = `<div class="compare-grid" style="grid-template-columns:repeat(${cols},1fr)">${homes.map(h => `
+    <div class="compare-col">
+      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}');height:80px;margin-bottom:8px;border-radius:4px"></div>
+      <h4>${h.address.split(' ').slice(0,2).join(' ')}</h4>
+      <div class="compare-row"><span class="compare-label">Price</span><span class="compare-val">${fmtFull(h.price)}</span></div>
+      <div class="compare-row"><span class="compare-label">Beds</span><span class="compare-val">${h.beds}</span></div>
+      <div class="compare-row"><span class="compare-label">Baths</span><span class="compare-val">${h.baths}</span></div>
+      <div class="compare-row"><span class="compare-label">Sq Ft</span><span class="compare-val">${h.sqft.toLocaleString()}</span></div>
+      <div class="compare-row"><span class="compare-label">$/Sf</span><span class="compare-val">$${Math.round(h.price/h.sqft)}</span></div>
+      <div class="compare-row"><span class="compare-label">Lot</span><span class="compare-val">${h.lot}</span></div>
+      <div class="compare-row"><span class="compare-label">HOA</span><span class="compare-val">$${h.hoa}/mo</span></div>
+      <div class="compare-row"><span class="compare-label">Score</span><span class="compare-val">${state.scores[h.id] || '—'}/10</span></div>
+    </div>`).join('')}</div>`;
+}
+
+function updateCompareBtn() {
+  const btn = el('compare-btn');
+  const info = el('compare-info');
+  btn.disabled = state.compareIds.length < 2;
+  info.textContent = state.compareIds.length === 0 ? 'Tap loved homes to add to compare' : `${state.compareIds.length} selected · ${3 - state.compareIds.length} slots left`;
+}
+
+function exportPDF() {
+  const liked = state.liked.map(id => HOMES.find(x => x.id === id)).filter(Boolean);
+  if (liked.length === 0) { alert("No loved homes to export yet."); return; }
+  const win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups to export.'); return; }
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const totalAvg = liked.reduce((s,h)=>s+h.price,0) / liked.length;
+  const scoresArr = liked.map(h => state.scores[h.id]).filter(Boolean);
+  const avgScore = scoresArr.length ? (scoresArr.reduce((a,b)=>a+b,0)/scoresArr.length).toFixed(1) : 'N/A';
+  const mustHaves = Object.keys(state.mustHaves).filter(k => state.mustHaves[k]);
+  const homesHtml = liked.map(h => {
+    const s = state.scores[h.id] || 0;
+    const n = state.notes[h.id] || '';
+    const r = state.rooms[h.id] || [];
+    const m = calcMortgage(h.price, 10, 6.5, 30);
+    const tax = h.price * h.taxRate / 12;
+    const ins = h.price * 0.0035 / 12;
+    const monthly = m.pi + tax + ins + h.hoa;
+    return `<div class="home">
+      <div class="home-head">
+        <div>
+          <div class="home-addr">${h.address}</div>
+          <div class="home-cit">${h.city}</div>
+        </div>
+        <div class="home-pr">${fmtFull(h.price)}</div>
+      </div>
+      <div class="home-specs"><b>${h.beds}</b> bd · <b>${h.baths}</b> ba · <b>${h.sqft.toLocaleString()}</b> sf · <b>${h.lot}</b> · HOA <b>$${h.hoa}</b>/mo</div>
+      <div class="row"><div><div class="lbl">Alejandra's score</div><div class="val">${s ? s + '/10' : '—'}</div></div>
+      <div><div class="lbl">Est. monthly (10% down, 6.5%, 30yr)</div><div class="val">${fmtFull(monthly)}</div></div></div>
+      ${r.length ? `<div class="rooms"><b>Favorite rooms:</b> ${r.join(', ')}</div>` : ''}
+      ${n ? `<div class="note"><b>Note:</b> ${n.replace(/</g,'&lt;')}</div>` : ''}
+    </div>`;
+  }).join('');
+  win.document.write(`<!DOCTYPE html><html><head><title>Alejandra Salomon · Home Portfolio</title>
+    <style>
+      @page { margin: 0.5in; }
+      body { font-family: Georgia, serif; color: #2d3e2f; max-width: 7.5in; margin: 0 auto; padding: 30px 24px; background: #faf7f0; }
+      .head { border-bottom: 2px solid #1a3a3a; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+      .brand { font-size: 22px; color: #1a3a3a; letter-spacing: 1px; }
+      .sub { font-size: 11px; color: #8a7c6a; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+      .for { text-align: right; font-size: 12px; color: #8a7c6a; }
+      .for b { color: #1a3a3a; font-size: 14px; display: block; }
+      h2 { font-size: 14px; color: #1a3a3a; border-bottom: 1px solid #c08552; padding-bottom: 4px; margin-top: 22px; }
+      .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin: 12px 0; }
+      .stat { background: #fffdf7; border-left: 3px solid #c08552; padding: 10px 12px; }
+      .stat-n { font-size: 18px; color: #1a3a3a; font-weight: bold; }
+      .stat-l { font-size: 9px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; }
+      .home { background: #fffdf7; padding: 12px 14px; margin-bottom: 12px; border-left: 3px solid #1a3a3a; page-break-inside: avoid; }
+      .home-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+      .home-addr { font-size: 14px; color: #1a3a3a; font-weight: bold; }
+      .home-cit { font-size: 10px; color: #8a7c6a; text-transform: uppercase; letter-spacing: 1px; }
+      .home-pr { font-size: 16px; color: #c08552; font-weight: bold; }
+      .home-specs { font-size: 11px; color: #4a5a4a; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #e8e4d8; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+      .lbl { font-size: 9px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; }
+      .val { font-size: 13px; color: #1a3a3a; font-weight: 500; }
+      .rooms, .note { font-size: 11px; color: #4a5a4a; margin-top: 6px; padding: 6px 10px; background: #f5f1ea; border-radius: 3px; }
+      .musts { background: #fffdf7; padding: 10px 14px; border-left: 3px solid #2d6a3a; font-size: 11px; color: #4a5a4a; line-height: 1.7; }
+      .ft { margin-top: 30px; padding-top: 14px; border-top: 1px solid #d4cdbe; font-size: 10px; color: #8a7c6a; text-align: center; font-style: italic; }
+      @media print { body { background: white; } .home, .stat, .musts { background: #fafafa; } }
+    </style></head><body>
+    <div class="head">
+      <div><div class="brand">CRISTIAN MILLAN</div><div class="sub">Real Brokerage · Utah · Curated home portfolio</div></div>
+      <div class="for"><b>Alejandra Salomon</b>${today}</div>
+    </div>
+    <h2>Search overview</h2>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">${liked.length}</div><div class="stat-l">Loved homes</div></div>
+      <div class="stat"><div class="stat-n">${avgScore}</div><div class="stat-l">Avg score</div></div>
+      <div class="stat"><div class="stat-n">${fmtPrice(totalAvg)}</div><div class="stat-l">Avg price</div></div>
+    </div>
+    ${mustHaves.length ? `<h2>Must-haves</h2><div class="musts">✓ ${mustHaves.join(' &nbsp;·&nbsp; ✓ ')}</div>` : ''}
+    <h2>Loved homes (${liked.length})</h2>
+    ${homesHtml}
+    <div class="ft">Prepared by Cristian Millan · Real Brokerage · Utah License<br>Mortgage estimates assume 10% down, 6.5% APR, 30-year term, and standard homeowner's insurance.</div>
+    <script>setTimeout(() => window.print(), 500);<\/script>
+    </body></html>`);
+  win.document.close();
+}
+
+function closeModal() { el('modal').classList.remove('active'); }
+
+function reset() {
+  if (!confirm('Reset all of Alejandra\'s selections?')) return;
+  state.idx = 0; state.liked = []; state.disliked = []; state.notes = {}; state.scores = {}; state.rooms = {}; state.compareIds = []; state.mustHaves = {}; state.galleryIdx = {};
+  save();
+  renderStack(); renderLiked(); renderChecklist(); renderMap(); updateCounts(); updateCompareBtn();
+}
+
+document.querySelectorAll('.lodge-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.lodge-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.lodge-view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    el('view-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'liked') renderLiked();
+    if (tab.dataset.tab === 'compare') updateCompareBtn();
+    if (tab.dataset.tab === 'map') renderMap();
+  });
+});
+
+el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+
+const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, runCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF };
+window.lodgeApp = lodgeApp;
+
+load();
+renderStack();
+renderChecklist();
+updateCounts();
+updateCompareBtn();
+</script>
+</body>
+</html>
