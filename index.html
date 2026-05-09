@@ -176,6 +176,35 @@
 
   .swipe-hint { text-align: center; font-size: 11px; color: #8a7c6a; margin: 8px 0; letter-spacing: 1px; font-style: italic; }
 
+  /* Loading screen */
+  .loading-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a3a3a 0%, #0f2828 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s ease, visibility 0.6s ease; }
+  .loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .loading-brand { font-family: var(--font-serif); font-size: 26px; letter-spacing: 3px; color: #d4a574; margin-bottom: 6px; opacity: 0; animation: fadeUp 0.8s ease forwards; }
+  .loading-brand-sub { font-size: 11px; letter-spacing: 4px; color: #a8b8a8; text-transform: uppercase; margin-bottom: 60px; opacity: 0; animation: fadeUp 0.8s 0.2s ease forwards; }
+  .loading-icon-wrap { width: 80px; height: 80px; margin-bottom: 30px; position: relative; opacity: 0; animation: fadeUp 0.8s 0.4s ease forwards; }
+  .loading-icon { width: 100%; height: 100%; }
+  .loading-icon svg { width: 100%; height: 100%; }
+  .loading-house { fill: #d4a574; animation: housePulse 2s ease-in-out infinite; transform-origin: center; }
+  .loading-heart { fill: #c08552; animation: heartBeat 1.4s ease-in-out infinite; transform-origin: center; }
+  .loading-message { font-family: var(--font-serif); font-size: 20px; color: #faf7f0; text-align: center; max-width: 320px; padding: 0 20px; opacity: 0; animation: fadeUp 0.8s 0.6s ease forwards; line-height: 1.4; font-style: italic; }
+  .loading-dots { display: flex; gap: 8px; margin-top: 24px; opacity: 0; animation: fadeUp 0.8s 0.8s ease forwards; }
+  .loading-dot { width: 8px; height: 8px; border-radius: 50%; background: #d4a574; animation: dotPulse 1.4s ease-in-out infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  .loading-tagline { position: absolute; bottom: 40px; font-size: 10px; letter-spacing: 3px; color: #a8b8a8; text-transform: uppercase; opacity: 0; animation: fadeUp 0.8s 1s ease forwards; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes housePulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes heartBeat { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.2); opacity: 1; } }
+  @keyframes dotPulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+  /* Undo button */
+  .undo-row { display: flex; justify-content: center; margin: 8px 0 -4px; min-height: 28px; }
+  .undo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: transparent; color: #8a7c6a; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: 16px; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 500; transition: all 0.15s; opacity: 0; pointer-events: none; transform: translateY(-4px); }
+  .undo-btn.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .undo-btn:hover { border-color: #c08552; color: #8b5a2b; background: #fffdf7; }
+  .undo-btn i { font-size: 14px; }
+
   .mort-grid { display: grid; gap: 10px; margin: 8px 0 14px; }
   .mort-row { display: flex; align-items: center; gap: 10px; }
   .mort-label { font-size: 11px; color: #8a7c6a; min-width: 90px; }
@@ -193,6 +222,26 @@
 </style>
 </head>
 <body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-brand">CRISTIAN MILLAN</div>
+  <div class="loading-brand-sub">Real Brokerage · Utah</div>
+  <div class="loading-icon-wrap">
+    <div class="loading-icon">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <path class="loading-house" d="M50 18 L18 42 L18 80 L42 80 L42 60 L58 60 L58 80 L82 80 L82 42 Z"/>
+        <path class="loading-heart" d="M50 56 C50 56 38 50 38 41 C38 36 41 33 45 33 C47 33 49 34 50 36 C51 34 53 33 55 33 C59 33 62 36 62 41 C62 50 50 56 50 56 Z"/>
+      </svg>
+    </div>
+  </div>
+  <div class="loading-message">Finding Alejandra's<br>dream home...</div>
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+  <div class="loading-tagline">Curating your portfolio</div>
+</div>
 
 <div class="lodge-app" id="lodge-app">
   <div class="lodge-header">
@@ -222,6 +271,9 @@
     <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
     <div class="swipe-stack" id="stack"></div>
     <div class="swipe-hint">Swipe or tap a button below</div>
+    <div class="undo-row">
+      <button class="undo-btn" id="undo-btn" onclick="lodgeApp.undo()"><i class="ti ti-arrow-back-up"></i> <span id="undo-text">Undo</span></button>
+    </div>
     <div class="swipe-actions" id="actions" style="display: none;">
       <div class="swipe-btn-wrap">
         <button class="swipe-btn dislike" onclick="lodgeApp.swipe('left')" aria-label="Pass"><i class="ti ti-x"></i></button>
@@ -409,7 +461,7 @@ const MUST_HAVES = ['3+ bedrooms', '2+ bathrooms', 'Open kitchen', 'Master on ma
 const ROOMS = ['Kitchen', 'Master Suite', 'Living Room', 'Backyard', 'Office', 'Basement', 'Garage', 'Bathroom'];
 const STORAGE_KEY = 'alejandra_homes_v2';
 
-const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {} };
+const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, lastAction: null };
 
 function load() { try { const v = localStorage.getItem(STORAGE_KEY); if (v) Object.assign(state, JSON.parse(v)); } catch (e) {} }
 function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -536,8 +588,33 @@ function swipe(dir) {
   state.viewedIds.push(home.id);
   if (dir === 'right') state.liked.push(home.id);
   else state.disliked.push(home.id);
+  state.lastAction = { id: home.id, dir };
   save();
-  setTimeout(() => { renderStack(); updateCounts(); updateChipCounts(); }, 350);
+  setTimeout(() => { renderStack(); updateCounts(); updateChipCounts(); updateUndoBtn(); }, 350);
+}
+
+function undo() {
+  if (!state.lastAction) return;
+  const { id, dir } = state.lastAction;
+  state.viewedIds = state.viewedIds.filter(x => x !== id);
+  if (dir === 'right') state.liked = state.liked.filter(x => x !== id);
+  else state.disliked = state.disliked.filter(x => x !== id);
+  state.lastAction = null;
+  save();
+  renderStack(); updateCounts(); updateChipCounts(); updateUndoBtn();
+}
+
+function updateUndoBtn() {
+  const btn = el('undo-btn');
+  const text = el('undo-text');
+  if (state.lastAction) {
+    const home = HOMES.find(h => h.id === state.lastAction.id);
+    const action = state.lastAction.dir === 'right' ? 'love' : 'pass';
+    text.textContent = `Undo ${action} on ${home.address.split(' ').slice(0, 2).join(' ')}`;
+    btn.classList.add('visible');
+  } else {
+    btn.classList.remove('visible');
+  }
 }
 
 function reconsider(id) {
@@ -809,9 +886,9 @@ function closeModal() { el('modal').classList.remove('active'); }
 
 function reset() {
   if (!confirm('Reset all of Alejandra\'s selections?')) return;
-  state.liked = []; state.disliked = []; state.notes = {}; state.scores = {}; state.rooms = {}; state.compareIds = []; state.mustHaves = {}; state.viewedIds = []; state.galleryIdx = {};
+  state.liked = []; state.disliked = []; state.notes = {}; state.scores = {}; state.rooms = {}; state.compareIds = []; state.mustHaves = {}; state.viewedIds = []; state.galleryIdx = {}; state.lastAction = null;
   save();
-  renderStack(); renderReview(); renderChecklist(); updateCounts(); updateCompareBtn(); updateChipCounts();
+  renderStack(); renderReview(); renderChecklist(); updateCounts(); updateCompareBtn(); updateChipCounts(); updateUndoBtn();
 }
 
 document.querySelectorAll('.lodge-tab').forEach(tab => {
@@ -837,7 +914,7 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 
 el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, runCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider };
+const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, runCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
 window.lodgeApp = lodgeApp;
 
 load();
@@ -848,6 +925,19 @@ renderChecklist();
 updateCounts();
 updateCompareBtn();
 updateChipCounts();
+updateUndoBtn();
+
+// Hide loading screen after minimum 2.2 seconds
+const loadingScreen = el('loading-screen');
+const startTime = performance.now();
+const minLoadTime = 2200;
+window.addEventListener('load', () => {
+  const elapsed = performance.now() - startTime;
+  const remaining = Math.max(0, minLoadTime - elapsed);
+  setTimeout(() => { loadingScreen.classList.add('hidden'); }, remaining);
+});
+// Fallback in case window.load doesn't fire
+setTimeout(() => { loadingScreen.classList.add('hidden'); }, 3500);
 </script>
 </body>
 </html>
