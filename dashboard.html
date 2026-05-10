@@ -187,7 +187,20 @@ const HOMES_LITE = {
   12: {address: '15203 S Tack Way', city: 'Bluffdale', price: 449900, type: 'Resale'},
   13: {address: '1055 W Painted Horse Ln', city: 'Bluffdale', price: 435000, type: 'Resale'},
   14: {address: '4035 E Oakland Hills Dr', city: 'Eagle Mountain', price: 444600, type: 'Resale'},
-  15: {address: '3612 E Ruby Ln', city: 'Eagle Mountain', price: 410000, type: 'Resale'}
+  15: {address: '3612 E Ruby Ln', city: 'Eagle Mountain', price: 410000, type: 'Resale'},
+  16: {address: '289 N Eaglewood Dr', city: 'Saratoga Springs', price: 399900, type: 'Resale'},
+  17: {address: '227 N Riverside Dr', city: 'Saratoga Springs', price: 410000, type: 'Resale'},
+  18: {address: '1078 E Dory Boat Rd', city: 'Saratoga Springs', price: 440000, type: 'Resale'},
+  19: {address: '941 W Purpledisk Dr', city: 'Saratoga Springs', price: 440000, type: 'Resale'},
+  20: {address: '869 S Mathilda Dr', city: 'Saratoga Springs', price: 439990, type: 'New'},
+  21: {address: '859 S Mathilda Dr', city: 'Saratoga Springs', price: 484990, type: 'New'},
+  22: {address: '4284 N Buckstone Way', city: 'Lehi', price: 554990, type: 'New'},
+  23: {address: '44 N Provo River Rd', city: 'Saratoga Springs', price: 519990, type: 'New'},
+  24: {address: 'James Plan · Wildflower', city: 'Saratoga Springs', price: 549900, type: 'New'},
+  25: {address: '3634 N Eagle Meadows Dr', city: 'Eagle Mountain', price: 492000, type: 'New'},
+  26: {address: '7549 N Hutch Ln', city: 'Eagle Mountain', price: 415000, type: 'Resale'},
+  27: {address: '146 E Carbonell Way', city: 'Saratoga Springs', price: 414900, type: 'Resale'},
+  28: {address: '3147 W Davencourt Loop', city: 'Lehi', price: 405000, type: 'Resale'}
 };
 
 // Change this password to your own — anyone who has it can see all your clients!
@@ -271,7 +284,7 @@ function renderDashboard() {
     const liked = data.liked || [];
     const disliked = data.disliked || [];
     const totalReviewed = liked.length + disliked.length;
-    const totalLeft = Math.max(0, 15 - totalReviewed);
+    const totalLeft = Math.max(0, 28 - totalReviewed);
     const lastUpdate = data.lastUpdated ? new Date(data.lastUpdated) : null;
     const minutesAgo = lastUpdate ? Math.floor((Date.now() - lastUpdate.getTime()) / 60000) : null;
 
