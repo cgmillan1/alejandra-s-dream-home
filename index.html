@@ -176,17 +176,113 @@
   .modal-btn.secondary { background: transparent; color: #4a5a4a; border-color: rgba(45, 62, 47, 0.3); }
   .modal-btn.secondary:hover { border-color: #c08552; color: #8b5a2b; }
 
-  .compare-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #4a5a4a; padding: 12px; background: #fffdf7; border-radius: var(--border-radius-md); border: 1px solid rgba(45, 62, 47, 0.15); flex-wrap: wrap; gap: 8px; }
-  .compare-btn { padding: 10px 18px; background: #1a3a3a; color: #faf7f0; border: none; border-radius: 6px; font-family: inherit; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; transition: all 0.15s; }
-  .compare-btn:hover:not(:disabled) { background: #2d5050; transform: translateY(-1px); }
-  .compare-btn:disabled { background: #d4cdbe; color: #8a7c6a; cursor: not-allowed; }
-  .compare-grid { display: grid; gap: 12px; margin-top: 12px; }
-  .compare-col { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: var(--border-radius-md); padding: 12px; }
-  .compare-col h4 { font-family: var(--font-serif); color: #1a3a3a; font-size: 14px; margin: 0 0 8px; }
-  .compare-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11px; border-bottom: 1px solid rgba(45, 62, 47, 0.08); }
-  .compare-row:last-child { border-bottom: none; }
-  .compare-label { color: #8a7c6a; }
-  .compare-val { color: #1a3a3a; font-weight: 500; }
+  /* Compare feature - completely redesigned */
+  .compare-intro { background: linear-gradient(135deg, #1a3a3a 0%, #2d5050 100%); color: #faf7f0; border-radius: 12px; padding: 20px 18px; margin-bottom: 14px; text-align: center; }
+  .compare-intro i { font-size: 32px; color: #d4a574; margin-bottom: 8px; display: block; }
+  .compare-intro h3 { font-family: var(--font-serif); font-size: 18px; margin: 0 0 6px; color: #d4a574; font-weight: 500; }
+  .compare-intro p { font-size: 12px; color: #c8d0c4; line-height: 1.5; margin: 0; max-width: 320px; margin: 0 auto; }
+  .compare-intro.collapsed { display: none; }
+
+  .compare-picker { margin-bottom: 14px; }
+  .compare-picker-title { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #8a7c6a; margin-bottom: 8px; font-weight: 600; }
+  .compare-picker-empty { background: #fffdf7; border: 1px dashed rgba(45,62,47,0.25); border-radius: 8px; padding: 24px 16px; text-align: center; font-size: 13px; color: #8a7c6a; }
+  .compare-picker-empty i { font-size: 24px; color: #c08552; display: block; margin-bottom: 6px; }
+  .compare-picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (min-width: 480px) { .compare-picker-grid { grid-template-columns: repeat(3, 1fr); } }
+  .compare-pick { background: #fffdf7; border: 2px solid rgba(45,62,47,0.15); border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.15s; position: relative; -webkit-tap-highlight-color: transparent; }
+  .compare-pick:active { transform: scale(0.97); }
+  .compare-pick.selected { border-color: #1a3a3a; background: #f5f1ea; }
+  .compare-pick.selected::after { content: '✓'; position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: #1a3a3a; color: #d4a574; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .compare-pick.disabled { opacity: 0.4; cursor: not-allowed; }
+  .compare-pick-thumb { width: 100%; height: 70px; border-radius: 4px; background-size: cover; background-position: center; margin-bottom: 6px; background-color: #e8e4d8; }
+  .compare-pick-price { font-family: var(--font-serif); color: #1a3a3a; font-size: 14px; font-weight: 500; line-height: 1; }
+  .compare-pick-addr { font-size: 10px; color: #4a5a4a; margin-top: 3px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Comparison cards (the big visual comparison) */
+  .compare-results { margin-top: 14px; }
+  .compare-results-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 18px; margin-bottom: 4px; font-weight: 500; }
+  .compare-results-sub { font-size: 11px; color: #8a7c6a; margin-bottom: 14px; font-style: italic; }
+  .compare-cards { display: grid; gap: 10px; margin-bottom: 16px; }
+  .compare-cards.cols-2 { grid-template-columns: 1fr 1fr; }
+  .compare-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 600px) { .compare-cards.cols-3 { gap: 6px; } }
+  .compare-card { background: #fffdf7; border: 1px solid rgba(45,62,47,0.2); border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(45,62,47,0.06); position: relative; }
+  .compare-card-img { width: 100%; height: 100px; background-size: cover; background-position: center; background-color: #e8e4d8; position: relative; }
+  @media (min-width: 480px) { .compare-card-img { height: 130px; } }
+  .compare-card-remove { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; background: rgba(26,58,58,0.85); color: #faf7f0; border: none; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+  .compare-card-remove:hover { background: #b85a3d; }
+  .compare-card-badge { position: absolute; bottom: 6px; left: 6px; padding: 3px 8px; font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 700; border-radius: 3px; }
+  .compare-card-badge.new { background: #c08552; color: #fff; }
+  .compare-card-badge.resale { background: #1a3a3a; color: #d4a574; }
+  .compare-card-body { padding: 10px 8px; }
+  @media (min-width: 480px) { .compare-card-body { padding: 12px 10px; } }
+  .compare-card-price { font-family: var(--font-serif); font-size: 16px; color: #1a3a3a; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+  @media (min-width: 480px) { .compare-card-price { font-size: 19px; } }
+  .compare-card-addr { font-size: 10px; color: #4a5a4a; line-height: 1.3; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @media (min-width: 480px) { .compare-card-addr { font-size: 11px; white-space: normal; } }
+  .compare-card-stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 10px; border-top: 1px solid rgba(45,62,47,0.08); }
+  @media (min-width: 480px) { .compare-card-stat { font-size: 11px; padding: 6px 0; } }
+  .compare-card-stat-label { color: #8a7c6a; }
+  .compare-card-stat-val { color: #1a3a3a; font-weight: 500; text-align: right; }
+  .compare-card-stat-val.winner { color: #2d6a3a; font-weight: 700; }
+  .compare-card-stat-val.winner::after { content: '★'; margin-left: 3px; color: #c08552; }
+
+  /* Verdict / Best in category section */
+  .compare-verdict { background: #fffdf7; border-left: 3px solid #c08552; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+  .compare-verdict-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 15px; margin-bottom: 10px; font-weight: 500; }
+  .verdict-list { display: grid; gap: 6px; }
+  .verdict-row { display: flex; align-items: center; gap: 10px; font-size: 12px; padding: 6px 0; }
+  .verdict-icon { font-size: 16px; min-width: 22px; text-align: center; }
+  .verdict-text { color: #4a5a4a; flex: 1; }
+  .verdict-text b { color: #1a3a3a; }
+
+  .compare-actions-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .compare-action-btn { flex: 1; min-width: 120px; padding: 12px; background: #1a3a3a; color: #faf7f0; border: none; border-radius: 6px; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; -webkit-tap-highlight-color: transparent; transition: all 0.15s; }
+  .compare-action-btn:active { transform: scale(0.97); }
+  .compare-action-btn:hover { background: #2d5050; }
+  .compare-action-btn.secondary { background: transparent; color: #1a3a3a; border: 1px solid #1a3a3a; }
+  .compare-action-btn.secondary:hover { background: #1a3a3a; color: #faf7f0; }
+
+  /* Love toast - shows after swipe right */
+  .love-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1a3a3a; color: #faf7f0; padding: 14px 18px; border-radius: 50px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); z-index: 200; display: flex; align-items: center; gap: 12px; font-size: 13px; opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; max-width: 92vw; }
+  .love-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: auto; }
+  .love-toast-icon { color: #d4a574; font-size: 18px; }
+  .love-toast-text { flex: 1; line-height: 1.3; }
+  .love-toast-text b { color: #d4a574; }
+  .love-toast-cta { background: #d4a574; color: #1a3a3a; border: none; padding: 7px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
+  .love-toast-cta:active { transform: scale(0.95); }
+
+  /* Smart suggestion in picker */
+  .compare-suggestion { background: linear-gradient(135deg, #c08552 0%, #d4a574 100%); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .compare-suggestion-text { color: #fffdf7; font-size: 12px; line-height: 1.3; flex: 1; }
+  .compare-suggestion-text b { font-weight: 700; }
+  .compare-suggestion-btn { background: #1a3a3a; color: #d4a574; border: none; padding: 7px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .compare-suggestion-btn:active { transform: scale(0.95); }
+
+  /* Compare card note */
+  .compare-card-note { background: #fef0eb; border-left: 2px solid #c08552; padding: 6px 8px; margin-top: 8px; border-radius: 0 4px 4px 0; font-size: 10px; color: #5a4a30; font-style: italic; line-height: 1.3; }
+
+  /* Reorder controls on compare cards */
+  .compare-card-reorder { position: absolute; top: 6px; left: 6px; display: flex; flex-direction: column; gap: 2px; }
+  .compare-card-reorder button { width: 22px; height: 22px; background: rgba(26,58,58,0.85); color: #faf7f0; border: none; border-radius: 4px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; padding: 0; }
+  .compare-card-reorder button:active { transform: scale(0.92); }
+  .compare-card-reorder button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  /* Photo gallery in compare card */
+  .compare-card-img { cursor: pointer; }
+  .compare-card-img-counter { position: absolute; bottom: 6px; right: 6px; background: rgba(26,58,58,0.85); color: #faf7f0; padding: 2px 7px; font-size: 9px; font-weight: 600; border-radius: 10px; }
+
+  /* Saved scenarios */
+  .scenarios-section { margin-bottom: 14px; }
+  .scenarios-title { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #8a7c6a; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+  .scenarios-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .scenario-chip { background: #fffdf7; border: 1px solid rgba(45,62,47,0.2); border-radius: 16px; padding: 6px 10px 6px 12px; font-size: 11px; color: #1a3a3a; display: flex; align-items: center; gap: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .scenario-chip:active { transform: scale(0.96); }
+  .scenario-chip.active { background: #1a3a3a; color: #d4a574; border-color: #1a3a3a; }
+  .scenario-chip-x { width: 16px; height: 16px; background: rgba(45,62,47,0.15); border: none; border-radius: 50%; color: #1a3a3a; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .scenario-chip.active .scenario-chip-x { background: rgba(212,165,116,0.3); color: #d4a574; }
+  .save-scenario-btn { background: transparent; border: 1px dashed rgba(45,62,47,0.3); border-radius: 16px; padding: 6px 12px; font-size: 11px; color: #8a7c6a; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .save-scenario-btn:active { transform: scale(0.96); }
 
   .realtor-panel { background: #1a3a3a; border-radius: var(--border-radius-md); padding: 14px; margin-bottom: 14px; }
   @media (min-width: 480px) { .realtor-panel { padding: 16px; margin-bottom: 16px; } }
@@ -284,6 +380,12 @@
 <body>
 
 <div class="sync-indicator fade" id="sync-indicator"></div>
+
+<div class="love-toast" id="love-toast">
+  <span class="love-toast-icon"><i class="ti ti-heart"></i></span>
+  <span class="love-toast-text" id="love-toast-text"></span>
+  <button class="love-toast-cta" onclick="lodgeApp.goToCompare()">Compare</button>
+</div>
 
 <div class="welcome-screen" id="welcome-screen">
   <div class="welcome-brand">CRISTIAN MILLAN</div>
@@ -397,10 +499,12 @@
   </div>
 
   <div class="lodge-view" id="view-compare">
-    <div class="compare-toolbar">
-      <span id="compare-info">Select 2-3 loved homes to compare</span>
-      <button class="compare-btn" id="compare-btn" onclick="lodgeApp.runCompare()" disabled>Compare</button>
+    <div class="compare-intro" id="compare-intro">
+      <i class="ti ti-arrows-left-right"></i>
+      <h3>Compare your loved homes</h3>
+      <p>Pick 2-3 homes you love to see them side-by-side. We'll highlight the best in each category so the choice is easy.</p>
     </div>
+    <div class="compare-picker" id="compare-picker"></div>
     <div id="compare-area"></div>
   </div>
 
@@ -720,7 +824,7 @@ function showSyncStatus(status) {
   }
 }
 
-const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, lastAction: null };
+const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], scenarios: {}, filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, compareImgIdx: {}, lastAction: null };
 
 // Firebase load/save - syncs across all devices using client code
 let saveTimeout = null;
@@ -789,6 +893,7 @@ function save() {
       rooms: state.rooms || {},
       mustHaves: state.mustHaves || {},
       compareIds: state.compareIds || [],
+      scenarios: state.scenarios || {},
       filter: state.filter || 'all',
       reviewView: state.reviewView || 'loved',
       viewedIds: state.viewedIds || [],
@@ -923,12 +1028,44 @@ function swipe(dir) {
   const top = el('stack').querySelector('.home-card:not(.behind)');
   if (top) top.classList.add(dir === 'right' ? 'gone-right' : 'gone-left');
   state.viewedIds.push(home.id);
-  if (dir === 'right') state.liked.push(home.id);
-  else state.disliked.push(home.id);
+  if (dir === 'right') {
+    state.liked.push(home.id);
+    showLoveToast(home);
+  } else {
+    state.disliked.push(home.id);
+  }
   state.lastAction = { id: home.id, dir };
   save();
   syncToSheet(dir === 'right' ? 'LOVE' : 'PASS', home.id);
   setTimeout(() => { renderStack(); updateCounts(); updateChipCounts(); updateUndoBtn(); }, 350);
+}
+
+function showLoveToast(home) {
+  const toast = el('love-toast');
+  const text = el('love-toast-text');
+  const lovedCount = state.liked.length;
+  if (lovedCount === 1) {
+    text.innerHTML = `Added <b>${home.address.split(' ').slice(0,3).join(' ')}</b><br><span style="font-size:11px;opacity:0.8">Love 1 more to compare</span>`;
+  } else if (lovedCount === 2) {
+    text.innerHTML = `<b>2 loves!</b> Ready to compare side-by-side`;
+  } else {
+    text.innerHTML = `<b>${lovedCount} loves</b> · Compare your top picks`;
+  }
+  toast.classList.add('show');
+  clearTimeout(window.__loveToastTimer);
+  window.__loveToastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+function goToCompare() {
+  el('love-toast').classList.remove('show');
+  const tabs = document.querySelectorAll('.lodge-tab');
+  const views = document.querySelectorAll('.lodge-view');
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'compare'));
+  views.forEach(v => v.classList.toggle('active', v.id === 'view-compare'));
+  renderComparePicker();
+  renderCompareResults();
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function undo() {
@@ -1127,31 +1264,328 @@ function toggleRoom(id, r) { state.rooms[id] = state.rooms[id] || []; const i = 
 function toggleMust(item) { state.mustHaves[item] = !state.mustHaves[item]; renderChecklist(); save(); }
 function saveLikedDetails(id) { state.notes[id] = el('note-input').value; save(); syncToSheet('UPDATE', id); closeModal(); renderReview(); updateCounts(); }
 function saveQuickNote(id) { state.notes[id] = el('note-input').value; save(); syncToSheet('NOTE', id); closeModal(); }
-function toggleCompare(id) { const i = state.compareIds.indexOf(id); if (i >= 0) state.compareIds.splice(i, 1); else if (state.compareIds.length < 3) state.compareIds.push(id); save(); closeModal(); renderReview(); }
+function toggleCompare(id) {
+  const i = state.compareIds.indexOf(id);
+  if (i >= 0) state.compareIds.splice(i, 1);
+  else if (state.compareIds.length < 3) state.compareIds.push(id);
+  save();
+  closeModal();
+  renderReview();
+  renderComparePicker();
+  renderCompareResults();
+}
 
-function runCompare() {
-  const homes = state.compareIds.map(id => HOMES.find(h => h.id === id));
+// Render the picker (top section showing all loved homes for selection)
+function renderComparePicker() {
+  const picker = el('compare-picker');
+  const liked = state.liked.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
+
+  if (liked.length === 0) {
+    picker.innerHTML = `
+      <div class="compare-picker-empty">
+        <i class="ti ti-heart"></i>
+        <div>You haven't loved any homes yet. Go to <strong>Discover</strong> and swipe right on homes you like first.</div>
+      </div>`;
+    return;
+  }
+
+  if (liked.length === 1) {
+    picker.innerHTML = `
+      <div class="compare-picker-empty">
+        <i class="ti ti-heart"></i>
+        <div>You need at least <strong>2 loved homes</strong> to compare. Go love one more home in <strong>Discover</strong>.</div>
+      </div>`;
+    return;
+  }
+
+  const selectedCount = state.compareIds.length;
+  const slotsLeft = Math.max(0, 3 - selectedCount);
+  const titleText = selectedCount === 0
+    ? `Tap homes below to add (${liked.length} loved homes)`
+    : `${selectedCount} selected · ${slotsLeft > 0 ? slotsLeft + ' slot' + (slotsLeft === 1 ? '' : 's') + ' left' : 'max reached'}`;
+
+  // Smart suggestion: if user has 2+ loved and nothing selected, suggest comparing the most recent 2
+  let suggestionHTML = '';
+  if (selectedCount === 0 && liked.length >= 2) {
+    const last2 = liked.slice(-2);
+    const last2Names = last2.map(h => h.address.split(' ').slice(0,2).join(' ')).join(' vs ');
+    suggestionHTML = `
+      <div class="compare-suggestion">
+        <div class="compare-suggestion-text">Quick start: compare your <b>last 2 loves</b><br><span style="opacity:0.85;font-size:11px">${last2Names}</span></div>
+        <button class="compare-suggestion-btn" onclick="lodgeApp.quickCompareLast2()">Go</button>
+      </div>`;
+  }
+
+  // Saved scenarios chips
+  const scenarios = state.scenarios || {};
+  const scenarioKeys = Object.keys(scenarios);
+  let scenariosHTML = '';
+  if (scenarioKeys.length > 0) {
+    const currentKey = JSON.stringify([...state.compareIds].sort());
+    scenariosHTML = `
+      <div class="scenarios-section">
+        <div class="scenarios-title">
+          <span><i class="ti ti-bookmark"></i> Saved comparisons</span>
+        </div>
+        <div class="scenarios-list">
+          ${scenarioKeys.map(key => {
+            const sc = scenarios[key];
+            const isActive = JSON.stringify([...sc.ids].sort()) === currentKey;
+            return `<div class="scenario-chip ${isActive ? 'active' : ''}" onclick="lodgeApp.loadScenario('${key}')">
+              <span>${sc.name}</span>
+              <button class="scenario-chip-x" onclick="event.stopPropagation();lodgeApp.deleteScenario('${key}')" aria-label="Delete">×</button>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  // Save scenario button (only if 2+ selected)
+  let saveScenarioHTML = '';
+  if (selectedCount >= 2) {
+    const currentKey = JSON.stringify([...state.compareIds].sort());
+    const alreadySaved = Object.values(scenarios).some(sc => JSON.stringify([...sc.ids].sort()) === currentKey);
+    if (!alreadySaved) {
+      saveScenarioHTML = `<button class="save-scenario-btn" onclick="lodgeApp.saveScenario()" style="margin-top:8px"><i class="ti ti-bookmark-plus"></i> Save this comparison</button>`;
+    }
+  }
+
+  picker.innerHTML = `
+    ${scenariosHTML}
+    ${suggestionHTML}
+    <div class="compare-picker-title">${titleText}</div>
+    <div class="compare-picker-grid">
+      ${liked.map(h => {
+        const isSelected = state.compareIds.includes(h.id);
+        const isDisabled = !isSelected && selectedCount >= 3;
+        return `<div class="compare-pick ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" onclick="${isDisabled ? '' : `lodgeApp.toggleCompare(${h.id})`}">
+          <div class="compare-pick-thumb" style="background-image:url('${h.imgs[0]}')"></div>
+          <div class="compare-pick-price">${fmtFull(h.price)}</div>
+          <div class="compare-pick-addr">${h.address}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    ${saveScenarioHTML}`;
+}
+
+// Compare results — visual side-by-side cards with "best in category" highlighting
+function renderCompareResults() {
+  const area = el('compare-area');
+  const intro = el('compare-intro');
+
+  if (state.compareIds.length < 2) {
+    area.innerHTML = '';
+    intro.classList.remove('collapsed');
+    return;
+  }
+
+  intro.classList.add('collapsed');
+  const homes = state.compareIds.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
   const cols = homes.length;
-  el('compare-area').innerHTML = `<div class="compare-grid" style="grid-template-columns:repeat(${cols},1fr)">${homes.map(h => `
-    <div class="compare-col">
-      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}');height:80px;margin-bottom:8px;border-radius:4px"></div>
-      <h4>${h.address.split(' ').slice(0,2).join(' ')}</h4>
-      <div class="compare-row"><span class="compare-label">Price</span><span class="compare-val">${fmtFull(h.price)}</span></div>
-      <div class="compare-row"><span class="compare-label">Type</span><span class="compare-val">${h.construction === 'new' ? 'New' : 'Resale'}</span></div>
-      <div class="compare-row"><span class="compare-label">Beds</span><span class="compare-val">${h.beds}</span></div>
-      <div class="compare-row"><span class="compare-label">Baths</span><span class="compare-val">${h.baths}</span></div>
-      <div class="compare-row"><span class="compare-label">Sq Ft</span><span class="compare-val">${h.sqft.toLocaleString()}</span></div>
-      <div class="compare-row"><span class="compare-label">$/Sf</span><span class="compare-val">$${Math.round(h.price/h.sqft)}</span></div>
-      <div class="compare-row"><span class="compare-label">HOA</span><span class="compare-val">$${h.hoa}/mo</span></div>
-      <div class="compare-row"><span class="compare-label">Score</span><span class="compare-val">${state.scores[h.id] || '—'}/10</span></div>
-    </div>`).join('')}</div>`;
+
+  // Calculate winners for each metric (lowest is winner for: price, $/sqft, HOA, rate; highest for: sqft, beds, baths, score)
+  const winners = {
+    price: Math.min(...homes.map(h => h.price)),
+    sqft: Math.max(...homes.map(h => h.sqft)),
+    pricePerSqft: Math.min(...homes.map(h => Math.round(h.price/h.sqft))),
+    beds: Math.max(...homes.map(h => h.beds)),
+    baths: Math.max(...homes.map(h => h.baths)),
+    hoa: Math.min(...homes.map(h => h.hoa || 0)),
+    rate: Math.min(...homes.map(h => h.specialRate || 6.5)),
+    score: Math.max(...homes.map(h => state.scores[h.id] || 0))
+  };
+
+  // Calculate estimated monthly for each (10% down, 30 yr, includes tax/ins/HOA)
+  const monthlyEstimates = homes.map(h => {
+    const rate = h.specialRate || 6.5;
+    const m = calcMortgage(h.price, 10, rate, 30);
+    const tax = h.price * h.taxRate / 12;
+    const ins = h.price * 0.0035 / 12;
+    return Math.round(m.pi + tax + ins + (h.hoa || 0));
+  });
+  const minMonthly = Math.min(...monthlyEstimates);
+
+  // Build comparison cards
+  area.innerHTML = `
+    <div class="compare-results">
+      <div class="compare-results-title">Side by side</div>
+      <div class="compare-results-sub">★ marks the best in each category</div>
+      <div class="compare-cards cols-${cols}">
+        ${homes.map((h, idx) => {
+          const monthly = monthlyEstimates[idx];
+          const pricePerSqft = Math.round(h.price/h.sqft);
+          const score = state.scores[h.id] || 0;
+          const rate = h.specialRate || 6.5;
+          const badge = h.construction === 'new'
+            ? '<div class="compare-card-badge new">New</div>'
+            : '<div class="compare-card-badge resale">Resale</div>';
+          const note = (state.notes && state.notes[h.id]) ? state.notes[h.id].trim() : '';
+          const noteHTML = note ? `<div class="compare-card-note">"${note}"</div>` : '';
+          const imgIdx = state.compareImgIdx[h.id] || 0;
+          const currentImg = h.imgs[imgIdx] || h.imgs[0];
+          const totalImgs = h.imgs.length;
+          const canMoveLeft = idx > 0;
+          const canMoveRight = idx < homes.length - 1;
+          const reorderHTML = homes.length > 2 ? `
+            <div class="compare-card-reorder">
+              <button onclick="event.stopPropagation();lodgeApp.reorderCompare(${idx},-1)" ${!canMoveLeft ? 'disabled' : ''} aria-label="Move left"><i class="ti ti-chevron-left"></i></button>
+              <button onclick="event.stopPropagation();lodgeApp.reorderCompare(${idx},1)" ${!canMoveRight ? 'disabled' : ''} aria-label="Move right"><i class="ti ti-chevron-right"></i></button>
+            </div>` : '';
+          return `<div class="compare-card">
+            <div class="compare-card-img" style="background-image:url('${currentImg}')" onclick="lodgeApp.cyclePhoto(${h.id})">
+              ${reorderHTML}
+              <button class="compare-card-remove" onclick="event.stopPropagation();lodgeApp.toggleCompare(${h.id})" aria-label="Remove">×</button>
+              ${badge}
+              ${totalImgs > 1 ? `<div class="compare-card-img-counter">${imgIdx + 1}/${totalImgs}</div>` : ''}
+            </div>
+            <div class="compare-card-body">
+              <div class="compare-card-price ${h.price === winners.price ? 'winner' : ''}">${fmtFull(h.price)}</div>
+              <div class="compare-card-addr">${h.address}, ${h.city.replace(', UT','')}</div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">Beds</span><span class="compare-card-stat-val ${h.beds === winners.beds ? 'winner' : ''}">${h.beds}</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">Baths</span><span class="compare-card-stat-val ${h.baths === winners.baths ? 'winner' : ''}">${h.baths}</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">Sq Ft</span><span class="compare-card-stat-val ${h.sqft === winners.sqft ? 'winner' : ''}">${h.sqft.toLocaleString()}</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">$/SF</span><span class="compare-card-stat-val ${pricePerSqft === winners.pricePerSqft ? 'winner' : ''}">$${pricePerSqft}</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">HOA</span><span class="compare-card-stat-val ${h.hoa === winners.hoa ? 'winner' : ''}">$${h.hoa}/mo</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">Rate</span><span class="compare-card-stat-val ${rate === winners.rate ? 'winner' : ''}">${rate}%${h.specialRate ? '🔥' : ''}</span></div>
+              <div class="compare-card-stat"><span class="compare-card-stat-label">Monthly</span><span class="compare-card-stat-val ${monthly === minMonthly ? 'winner' : ''}">$${monthly.toLocaleString()}</span></div>
+              ${score > 0 ? `<div class="compare-card-stat"><span class="compare-card-stat-label">My Score</span><span class="compare-card-stat-val ${score === winners.score ? 'winner' : ''}">${score}/10</span></div>` : ''}
+              ${noteHTML}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+      ${renderVerdict(homes, winners, monthlyEstimates, minMonthly)}
+      <div class="compare-actions-bar">
+        <button class="compare-action-btn secondary" onclick="lodgeApp.clearCompare()"><i class="ti ti-refresh"></i> Clear &amp; pick again</button>
+        <button class="compare-action-btn" onclick="lodgeApp.exportPDF()"><i class="ti ti-download"></i> Email to Cristian</button>
+      </div>
+    </div>`;
+}
+
+function renderVerdict(homes, winners, monthlyEstimates, minMonthly) {
+  // Identify which house wins each category
+  const findHomeWith = (key, val) => {
+    if (key === 'monthly') return homes.find((_, i) => monthlyEstimates[i] === minMonthly);
+    if (key === 'pricePerSqft') return homes.find(h => Math.round(h.price/h.sqft) === val);
+    if (key === 'rate') return homes.find(h => (h.specialRate || 6.5) === val);
+    return homes.find(h => h[key] === val);
+  };
+
+  const verdicts = [];
+
+  // Most affordable
+  const cheapest = findHomeWith('price', winners.price);
+  if (cheapest) verdicts.push({ icon: '💰', text: `<b>Best price:</b> ${cheapest.address.split(' ').slice(0,3).join(' ')} at ${fmtFull(cheapest.price)}` });
+
+  // Lowest monthly
+  const lowestMonthly = findHomeWith('monthly', minMonthly);
+  const cheapestPriceHome = findHomeWith('price', winners.price);
+  if (lowestMonthly && lowestMonthly.id !== cheapestPriceHome?.id) {
+    verdicts.push({ icon: '📉', text: `<b>Lowest monthly:</b> ${lowestMonthly.address.split(' ').slice(0,3).join(' ')} at $${minMonthly.toLocaleString()}/mo${lowestMonthly.specialRate ? ' (rate incentive)' : ''}` });
+  }
+
+  // Best value ($/sqft)
+  const bestValue = findHomeWith('pricePerSqft', winners.pricePerSqft);
+  if (bestValue) verdicts.push({ icon: '📐', text: `<b>Best value per sqft:</b> ${bestValue.address.split(' ').slice(0,3).join(' ')} at $${winners.pricePerSqft}/sqft` });
+
+  // Most space
+  const largest = findHomeWith('sqft', winners.sqft);
+  if (largest) verdicts.push({ icon: '🏠', text: `<b>Most space:</b> ${largest.address.split(' ').slice(0,3).join(' ')} with ${winners.sqft.toLocaleString()} sqft` });
+
+  // Lowest HOA
+  const lowestHOA = findHomeWith('hoa', winners.hoa);
+  if (lowestHOA && winners.hoa < 200) verdicts.push({ icon: '🏘️', text: `<b>Lowest HOA:</b> ${lowestHOA.address.split(' ').slice(0,3).join(' ')} at $${winners.hoa}/mo` });
+
+  // Best rate
+  const bestRate = findHomeWith('rate', winners.rate);
+  if (bestRate && winners.rate < 6) verdicts.push({ icon: '🔥', text: `<b>Best rate incentive:</b> ${bestRate.address.split(' ').slice(0,3).join(' ')} at ${winners.rate}%` });
+
+  if (verdicts.length === 0) return '';
+
+  return `<div class="compare-verdict">
+    <div class="compare-verdict-title">Quick verdict</div>
+    <div class="verdict-list">
+      ${verdicts.map(v => `<div class="verdict-row"><span class="verdict-icon">${v.icon}</span><span class="verdict-text">${v.text}</span></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function clearCompare() {
+  state.compareIds = [];
+  state.compareImgIdx = {};
+  save();
+  renderComparePicker();
+  renderCompareResults();
+}
+
+// Tier 1 #2: Smart suggestion - compare last 2 loved homes
+function quickCompareLast2() {
+  const last2 = state.liked.slice(-2);
+  state.compareIds = [...last2];
+  save();
+  renderComparePicker();
+  renderCompareResults();
+}
+
+// Tier 3 #5: Save / load / delete named scenarios
+function saveScenario() {
+  const homes = state.compareIds.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
+  if (homes.length < 2) return;
+  const defaultName = homes.length === 2
+    ? homes.map(h => h.address.split(' ').slice(0,2).join(' ')).join(' vs ')
+    : `Top ${homes.length}: ${homes[0].city.replace(', UT','')}`;
+  const name = prompt('Name this comparison:', defaultName);
+  if (!name || !name.trim()) return;
+  const key = 'sc_' + Date.now();
+  if (!state.scenarios) state.scenarios = {};
+  state.scenarios[key] = { name: name.trim().slice(0, 40), ids: [...state.compareIds] };
+  save();
+  renderComparePicker();
+}
+
+function loadScenario(key) {
+  const sc = state.scenarios && state.scenarios[key];
+  if (!sc) return;
+  state.compareIds = [...sc.ids];
+  save();
+  renderComparePicker();
+  renderCompareResults();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function deleteScenario(key) {
+  if (!state.scenarios || !state.scenarios[key]) return;
+  if (!confirm(`Delete "${state.scenarios[key].name}"?`)) return;
+  delete state.scenarios[key];
+  save();
+  renderComparePicker();
+}
+
+// Tier 3 #4: Reorder compare cards
+function reorderCompare(idx, direction) {
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= state.compareIds.length) return;
+  const ids = [...state.compareIds];
+  [ids[idx], ids[newIdx]] = [ids[newIdx], ids[idx]];
+  state.compareIds = ids;
+  save();
+  renderCompareResults();
+}
+
+// Tier 3 #9: Cycle through photos in compare card
+function cyclePhoto(homeId) {
+  const home = HOMES.find(h => h.id === homeId);
+  if (!home) return;
+  const cur = state.compareImgIdx[homeId] || 0;
+  state.compareImgIdx[homeId] = (cur + 1) % home.imgs.length;
+  save();
+  renderCompareResults();
 }
 
 function updateCompareBtn() {
-  const btn = el('compare-btn');
-  const info = el('compare-info');
-  btn.disabled = state.compareIds.length < 2;
-  info.textContent = state.compareIds.length === 0 ? 'Tap loved homes to add to compare' : `${state.compareIds.length} selected · ${3 - state.compareIds.length} slots left`;
+  // Legacy function - now just triggers picker render
+  renderComparePicker();
+  renderCompareResults();
 }
 
 function exportPDF() {
@@ -1258,7 +1692,7 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 
 el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, runCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
+const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, clearCompare, renderComparePicker, renderCompareResults, quickCompareLast2, saveScenario, loadScenario, deleteScenario, reorderCompare, cyclePhoto, goToCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
 window.lodgeApp = lodgeApp;
 
 // Welcome screen logic - shown when there's no client code in the URL
