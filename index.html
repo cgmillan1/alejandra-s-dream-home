@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
@@ -231,7 +233,32 @@
   @keyframes heartBeat { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.2); opacity: 1; } }
   @keyframes dotPulse { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
 
-  /* Undo button */
+  /* Sync indicator */
+  .sync-indicator { position: fixed; top: 12px; right: 12px; padding: 6px 12px; background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: 16px; font-size: 11px; color: #5a6a5a; display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); z-index: 50; transition: opacity 0.4s ease; }
+  .sync-indicator i { font-size: 13px; }
+  .sync-indicator.syncing { color: #c08552; }
+  .sync-indicator.synced, .sync-indicator.loaded { color: #2d6a3a; }
+  .sync-indicator.error { color: #b85a3d; }
+  .sync-indicator.fade { opacity: 0; pointer-events: none; }
+
+  /* Welcome screen for visitors without a client code */
+  .welcome-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a3a3a 0%, #0f2828 100%); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+  .welcome-screen.visible { display: flex; }
+  .welcome-brand { font-family: var(--font-serif); font-size: 28px; letter-spacing: 3px; color: #d4a574; margin-bottom: 6px; font-weight: 600; }
+  .welcome-brand-sub { font-size: 11px; letter-spacing: 4px; color: #a8b8a8; text-transform: uppercase; margin-bottom: 50px; }
+  .welcome-icon { width: 70px; height: 70px; margin-bottom: 24px; opacity: 0.9; }
+  .welcome-title { font-family: var(--font-serif); font-size: 26px; color: #faf7f0; margin-bottom: 16px; line-height: 1.3; }
+  .welcome-desc { font-size: 14px; color: #c8d0c4; max-width: 360px; line-height: 1.6; margin-bottom: 28px; }
+  .welcome-form { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
+  .welcome-input { width: 100%; padding: 14px 16px; background: rgba(255, 253, 247, 0.1); border: 1px solid rgba(212, 165, 116, 0.4); border-radius: 8px; color: #faf7f0; font-family: inherit; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+  .welcome-input::placeholder { color: rgba(168, 184, 168, 0.6); }
+  .welcome-input:focus { outline: none; border-color: #d4a574; background: rgba(255, 253, 247, 0.15); }
+  .welcome-btn { padding: 14px; background: #d4a574; color: #1a3a3a; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-weight: 700; transition: all 0.15s; }
+  .welcome-btn:active { transform: scale(0.97); }
+  .welcome-btn:hover { background: #e0b585; }
+  .welcome-error { color: #f4a89a; font-size: 12px; margin-top: 8px; min-height: 18px; }
+  .welcome-footer { position: absolute; bottom: 30px; font-size: 10px; letter-spacing: 2px; color: #a8b8a8; text-transform: uppercase; }
+  .welcome-contact { color: #d4a574; text-decoration: none; }
   .undo-row { display: flex; justify-content: center; margin: 8px 0 -4px; min-height: 28px; }
   .undo-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: transparent; color: #8a7c6a; border: 1px solid rgba(45, 62, 47, 0.2); border-radius: 16px; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 500; transition: all 0.15s; opacity: 0; pointer-events: none; transform: translateY(-4px); }
   .undo-btn.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
@@ -256,6 +283,27 @@
 </head>
 <body>
 
+<div class="sync-indicator fade" id="sync-indicator"></div>
+
+<div class="welcome-screen" id="welcome-screen">
+  <div class="welcome-brand">CRISTIAN MILLAN</div>
+  <div class="welcome-brand-sub">Real Brokerage · Utah</div>
+  <svg class="welcome-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#d4a574" d="M50 18 L18 42 L18 80 L42 80 L42 60 L58 60 L58 80 L82 80 L82 42 Z"/>
+    <path fill="#c08552" d="M50 56 C50 56 38 50 38 41 C38 36 41 33 45 33 C47 33 49 34 50 36 C51 34 53 33 55 33 C59 33 62 36 62 41 C62 50 50 56 50 56 Z"/>
+  </svg>
+  <div class="welcome-title">Personal home portfolios<br>for my clients</div>
+  <div class="welcome-desc">Enter your access code to view your curated home selection. Don't have one? Reach out and I'll set you up.</div>
+  <div class="welcome-form">
+    <input type="text" class="welcome-input" id="welcome-code" placeholder="Your access code" maxlength="20" autocomplete="off">
+    <button class="welcome-btn" id="welcome-submit">Open my portfolio</button>
+    <div class="welcome-error" id="welcome-error"></div>
+  </div>
+  <div class="welcome-footer">
+    Cristian Millan · <a href="mailto:cristian.gmillan@gmail.com" class="welcome-contact">cristian.gmillan@gmail.com</a> · (801) 719-4237
+  </div>
+</div>
+
 <div class="loading-screen" id="loading-screen">
   <div class="loading-brand">CRISTIAN MILLAN</div>
   <div class="loading-brand-sub">Real Brokerage · Utah</div>
@@ -267,7 +315,7 @@
       </svg>
     </div>
   </div>
-  <div class="loading-message">Finding Alejandra's<br>dream home...</div>
+  <div class="loading-message" id="loading-message">Finding Alejandra's<br>dream home...</div>
   <div class="loading-dots">
     <div class="loading-dot"></div>
     <div class="loading-dot"></div>
@@ -283,7 +331,7 @@
       <div class="lodge-brand-sub">Real Brokerage · Utah</div>
     </div>
     <div class="lodge-greeting">
-      <div class="lodge-greeting-name">Alejandra Salomon</div>
+      <div class="lodge-greeting-name" id="client-name-display">Alejandra Salomon</div>
       <div class="lodge-greeting-sub">Your home journey</div>
     </div>
   </div>
@@ -326,7 +374,7 @@
   <div class="lodge-view" id="view-liked">
     <div class="realtor-panel">
       <h3>For Cristian's Eyes</h3>
-      <p>All of Alejandra's reviewed homes — both loved and passed.</p>
+      <p id="realtor-panel-desc">All of Alejandra's reviewed homes — both loved and passed.</p>
       <div class="realtor-stats">
         <div class="stat-box"><div class="stat-num" id="stat-loved">0</div><div class="stat-lbl">Loved</div></div>
         <div class="stat-box"><div class="stat-num" id="stat-passed">0</div><div class="stat-lbl">Passed</div></div>
@@ -343,7 +391,7 @@
 
   <div class="lodge-view" id="view-checklist">
     <div class="checklist">
-      <div class="checklist-title">Alejandra's Must-Haves</div>
+      <div class="checklist-title" id="checklist-title">Alejandra's Must-Haves</div>
       <div id="checklist-items"></div>
     </div>
   </div>
@@ -494,15 +542,49 @@ const MUST_HAVES = ['3+ bedrooms', '2+ bathrooms', 'Open kitchen', 'Master on ma
 const ROOMS = ['Kitchen', 'Master Suite', 'Living Room', 'Backyard', 'Office', 'Basement', 'Garage', 'Bathroom'];
 const STORAGE_KEY = 'alejandra_homes_v2';
 
-// Google Sheets sync — sends all actions to your spreadsheet
+// ============================================================================
+// FIREBASE CONFIG - Connects to your cloud database
+// ============================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyChX2Q6q-pZr7xHDnG31Xr0hLiItQn5m-0",
+  authDomain: "cmr-home-portfolio.firebaseapp.com",
+  databaseURL: "https://cmr-home-portfolio-default-rtdb.firebaseio.com",
+  projectId: "cmr-home-portfolio",
+  storageBucket: "cmr-home-portfolio.firebasestorage.app",
+  messagingSenderId: "872375961631",
+  appId: "1:872375961631:web:4834df880c9ea45ca0ad2a"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ============================================================================
+// CLIENT CODE SYSTEM - Each client gets a unique code in the URL
+// e.g. ?id=ALE2026 loads Alejandra's data
+// ============================================================================
+const urlParams = new URLSearchParams(window.location.search);
+const CLIENT_CODE = (urlParams.get('id') || '').toUpperCase().trim();
+
+// Map of client codes to client names (add more clients here as you grow)
+const CLIENT_NAMES = {
+  'ALE2026': 'Alejandra Salomon',
+  'DEMO': 'Demo Client'
+};
+
+const CLIENT_NAME = CLIENT_NAMES[CLIENT_CODE] || 'Guest';
+
+// Google Sheets sync (kept as backup logging)
 const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbwBVU7QgVZiu6sPpkCzVEuTLANb2tY2KD7j1TIXwUgEYGtGGX2-B62YaftvWgPMQlVk/exec';
 
 function syncToSheet(action, homeId, extra = {}) {
-  if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL.includes('PASTE_YOUR_URL')) return;
+  if (!SHEETS_WEBHOOK_URL || !CLIENT_CODE) return;
   const home = HOMES.find(h => h.id === homeId);
   if (!home) return;
   const payload = {
     action: action,
+    clientCode: CLIENT_CODE,
+    clientName: CLIENT_NAME,
     homeId: homeId,
     address: home.address,
     city: home.city,
@@ -512,19 +594,110 @@ function syncToSheet(action, homeId, extra = {}) {
     rooms: extra.rooms || (state.rooms[homeId] ? state.rooms[homeId].join(', ') : ''),
     notes: extra.notes || state.notes[homeId] || ''
   };
-  // Use no-cors mode and don't await — fire and forget so UI stays snappy
   fetch(SHEETS_WEBHOOK_URL, {
     method: 'POST',
     mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
-  }).catch(err => console.log('Sync failed (non-blocking):', err));
+  }).catch(err => console.log('Sheets sync failed (non-blocking):', err));
+}
+
+// Sync indicator UI
+function showSyncStatus(status) {
+  const indicator = el('sync-indicator');
+  if (!indicator) return;
+  indicator.className = 'sync-indicator ' + status;
+  if (status === 'syncing') indicator.innerHTML = '<i class="ti ti-cloud-upload"></i> Saving...';
+  else if (status === 'synced') indicator.innerHTML = '<i class="ti ti-cloud-check"></i> Saved';
+  else if (status === 'error') indicator.innerHTML = '<i class="ti ti-cloud-off"></i> Offline';
+  else if (status === 'loaded') indicator.innerHTML = '<i class="ti ti-cloud-check"></i> Loaded';
+  if (status === 'synced' || status === 'loaded') {
+    setTimeout(() => indicator.classList.add('fade'), 1500);
+  }
 }
 
 const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, lastAction: null };
 
-function load() { try { const v = localStorage.getItem(STORAGE_KEY); if (v) Object.assign(state, JSON.parse(v)); } catch (e) {} }
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+// Firebase load/save - syncs across all devices using client code
+let saveTimeout = null;
+let firebaseLoaded = false;
+
+function load() {
+  // Fallback localStorage cache for offline use
+  try { const v = localStorage.getItem(STORAGE_KEY); if (v) Object.assign(state, JSON.parse(v)); } catch (e) {}
+  // Then load from Firebase if we have a client code
+  if (!CLIENT_CODE) return;
+  showSyncStatus('syncing');
+  db.ref('clients/' + CLIENT_CODE).once('value').then(snap => {
+    const data = snap.val();
+    if (data) {
+      Object.assign(state, data);
+      // Re-render everything with cloud data
+      renderStack(); renderReview(); renderChecklist();
+      updateCounts(); updateChipCounts(); updateUndoBtn();
+      // Update active filter and review view from cloud
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === state.filter));
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.reviewView));
+    }
+    firebaseLoaded = true;
+    showSyncStatus('loaded');
+  }).catch(err => {
+    console.log('Firebase load failed:', err);
+    firebaseLoaded = true;
+    showSyncStatus('error');
+  });
+
+  // Live sync: listen for changes from other devices
+  db.ref('clients/' + CLIENT_CODE).on('value', snap => {
+    if (!firebaseLoaded) return; // skip initial fetch
+    const data = snap.val();
+    if (!data) return;
+    // Only update if data is different (avoid loops from our own writes)
+    const currentJson = JSON.stringify({
+      liked: state.liked, disliked: state.disliked, scores: state.scores,
+      notes: state.notes, rooms: state.rooms, mustHaves: state.mustHaves, viewedIds: state.viewedIds
+    });
+    const remoteJson = JSON.stringify({
+      liked: data.liked || [], disliked: data.disliked || [], scores: data.scores || {},
+      notes: data.notes || {}, rooms: data.rooms || {}, mustHaves: data.mustHaves || {}, viewedIds: data.viewedIds || []
+    });
+    if (currentJson !== remoteJson) {
+      Object.assign(state, data);
+      renderStack(); renderReview(); renderChecklist();
+      updateCounts(); updateChipCounts(); updateUndoBtn();
+    }
+  });
+}
+
+function save() {
+  // Save locally first (instant, works offline)
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  // Debounced Firebase save (waits 400ms in case of rapid actions)
+  if (!CLIENT_CODE) return;
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    showSyncStatus('syncing');
+    const payload = {
+      liked: state.liked || [],
+      disliked: state.disliked || [],
+      notes: state.notes || {},
+      scores: state.scores || {},
+      rooms: state.rooms || {},
+      mustHaves: state.mustHaves || {},
+      compareIds: state.compareIds || [],
+      filter: state.filter || 'all',
+      reviewView: state.reviewView || 'loved',
+      viewedIds: state.viewedIds || [],
+      galleryIdx: state.galleryIdx || {},
+      lastAction: state.lastAction || null,
+      lastUpdated: firebase.database.ServerValue.TIMESTAMP,
+      clientName: CLIENT_NAME
+    };
+    db.ref('clients/' + CLIENT_CODE).set(payload)
+      .then(() => showSyncStatus('synced'))
+      .catch(err => { console.log('Firebase save failed:', err); showSyncStatus('error'); });
+  }, 400);
+}
 
 const el = (id) => document.getElementById(id);
 const fmtPrice = (p) => '$' + (p / 1000).toFixed(0) + 'k';
@@ -901,7 +1074,7 @@ function exportPDF() {
       ${n ? `<div class="note"><b>Note:</b> ${n.replace(/</g,'&lt;')}</div>` : ''}
     </div>`;
   }).join('');
-  win.document.write(`<!DOCTYPE html><html><head><title>Alejandra Salomon · Home Portfolio</title>
+  win.document.write(`<!DOCTYPE html><html><head><title>${CLIENT_NAME} · Home Portfolio</title>
     <style>
       @page { margin: 0.5in; }
       body { font-family: Georgia, serif; color: #2d3e2f; max-width: 7.5in; margin: 0 auto; padding: 30px 24px; background: #faf7f0; }
@@ -929,7 +1102,7 @@ function exportPDF() {
       .ft { margin-top: 30px; padding-top: 14px; border-top: 1px solid #d4cdbe; font-size: 10px; color: #8a7c6a; text-align: center; font-style: italic; }
       @media print { body { background: white; } .home, .stat, .musts { background: #fafafa; } }
     </style></head><body>
-    <div class="head"><div><div class="brand">CRISTIAN MILLAN</div><div class="sub">Real Brokerage · Utah · Curated home portfolio</div></div><div class="for"><b>Alejandra Salomon</b>${today}</div></div>
+    <div class="head"><div><div class="brand">CRISTIAN MILLAN</div><div class="sub">Real Brokerage · Utah · Curated home portfolio</div></div><div class="for"><b>${CLIENT_NAME}</b>${today}</div></div>
     <h2>Search overview</h2>
     <div class="stats">
       <div class="stat"><div class="stat-n">${liked.length}</div><div class="stat-l">Loved</div></div>
@@ -948,7 +1121,8 @@ function exportPDF() {
 function closeModal() { el('modal').classList.remove('active'); }
 
 function reset() {
-  if (!confirm('Reset all of Alejandra\'s selections?')) return;
+  const firstName = (CLIENT_NAMES[CLIENT_CODE] || 'this client').split(' ')[0];
+  if (!confirm(`Reset all of ${firstName}'s selections?`)) return;
   state.liked = []; state.disliked = []; state.notes = {}; state.scores = {}; state.rooms = {}; state.compareIds = []; state.mustHaves = {}; state.viewedIds = []; state.galleryIdx = {}; state.lastAction = null;
   save();
   renderStack(); renderReview(); renderChecklist(); updateCounts(); updateCompareBtn(); updateChipCounts(); updateUndoBtn();
@@ -980,27 +1154,76 @@ el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') clos
 const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, runCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
 window.lodgeApp = lodgeApp;
 
-load();
-document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === state.filter));
-document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.reviewView));
-renderStack();
-renderChecklist();
-updateCounts();
-updateCompareBtn();
-updateChipCounts();
-updateUndoBtn();
+// Welcome screen logic - shown when there's no client code in the URL
+function setupWelcomeScreen() {
+  const welcome = el('welcome-screen');
+  const input = el('welcome-code');
+  const submit = el('welcome-submit');
+  const error = el('welcome-error');
 
-// Hide loading screen after minimum 2.2 seconds
-const loadingScreen = el('loading-screen');
-const startTime = performance.now();
-const minLoadTime = 2200;
-window.addEventListener('load', () => {
-  const elapsed = performance.now() - startTime;
-  const remaining = Math.max(0, minLoadTime - elapsed);
-  setTimeout(() => { loadingScreen.classList.add('hidden'); }, remaining);
-});
-// Fallback in case window.load doesn't fire
-setTimeout(() => { loadingScreen.classList.add('hidden'); }, 3500);
+  function tryEnter() {
+    const code = input.value.toUpperCase().trim();
+    if (!code) { error.textContent = 'Please enter your access code'; return; }
+    if (!CLIENT_NAMES[code]) {
+      error.textContent = "Code not recognized. Contact Cristian if you need help.";
+      return;
+    }
+    // Valid code - reload with it in URL
+    window.location.search = '?id=' + code;
+  }
+
+  submit.addEventListener('click', tryEnter);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryEnter(); });
+  welcome.classList.add('visible');
+}
+
+// Personalize loading screen with client first name
+function personalizeLoadingScreen() {
+  if (!CLIENT_CODE || !CLIENT_NAMES[CLIENT_CODE]) return;
+  const fullName = CLIENT_NAMES[CLIENT_CODE];
+  const firstName = fullName.split(' ')[0];
+  const msg = el('loading-message');
+  if (msg) msg.innerHTML = `Finding ${firstName}'s<br>dream home...`;
+  const greet = el('client-name-display');
+  if (greet) greet.textContent = fullName;
+  const desc = el('realtor-panel-desc');
+  if (desc) desc.textContent = `All of ${firstName}'s reviewed homes — both loved and passed.`;
+  const checklistTitle = el('checklist-title');
+  if (checklistTitle) checklistTitle.textContent = `${firstName}'s Must-Haves`;
+  document.title = `${fullName} · Home Portfolio · Cristian Millan`;
+}
+
+// Initialize the app
+if (!CLIENT_CODE || !CLIENT_NAMES[CLIENT_CODE]) {
+  // No valid code - show welcome screen and skip app initialization
+  document.addEventListener('DOMContentLoaded', () => {
+    el('loading-screen').classList.add('hidden');
+    setupWelcomeScreen();
+  });
+} else {
+  // Valid code - initialize app normally
+  personalizeLoadingScreen();
+  load();
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === state.filter));
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.reviewView));
+  renderStack();
+  renderChecklist();
+  updateCounts();
+  updateCompareBtn();
+  updateChipCounts();
+  updateUndoBtn();
+
+  // Hide loading screen after minimum 2.2 seconds
+  const loadingScreen = el('loading-screen');
+  const startTime = performance.now();
+  const minLoadTime = 2200;
+  window.addEventListener('load', () => {
+    const elapsed = performance.now() - startTime;
+    const remaining = Math.max(0, minLoadTime - elapsed);
+    setTimeout(() => { loadingScreen.classList.add('hidden'); }, remaining);
+  });
+  setTimeout(() => { loadingScreen.classList.add('hidden'); }, 3500);
+}
 </script>
 </body>
 </html>
