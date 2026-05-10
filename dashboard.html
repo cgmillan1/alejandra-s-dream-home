@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Realtor Dashboard · Cristian Millan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f0ebe0; color: #2d3e2f; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  .login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #1a3a3a 0%, #0f2828 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .login-screen.hidden { display: none; }
+  .login-brand { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; letter-spacing: 3px; color: #d4a574; margin-bottom: 6px; font-weight: 600; }
+  .login-sub { font-size: 11px; letter-spacing: 4px; color: #a8b8a8; text-transform: uppercase; margin-bottom: 50px; }
+  .login-icon { width: 60px; height: 60px; margin-bottom: 24px; }
+  .login-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; color: #faf7f0; margin-bottom: 24px; }
+  .login-form { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
+  .login-input { width: 100%; padding: 14px 16px; background: rgba(255,253,247,0.1); border: 1px solid rgba(212,165,116,0.4); border-radius: 8px; color: #faf7f0; font-family: inherit; font-size: 14px; text-align: center; }
+  .login-input:focus { outline: none; border-color: #d4a574; background: rgba(255,253,247,0.15); }
+  .login-btn { padding: 14px; background: #d4a574; color: #1a3a3a; border: none; border-radius: 8px; font-family: inherit; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; font-weight: 700; }
+  .login-btn:hover { background: #e0b585; }
+  .login-error { color: #f4a89a; font-size: 12px; min-height: 18px; text-align: center; margin-top: 6px; }
+
+  .dash { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  @media (min-width: 720px) { .dash { padding: 32px; } }
+  .dash-header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 14px; border-bottom: 2px solid #1a3a3a; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .dash-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; color: #1a3a3a; font-weight: 600; letter-spacing: 1px; }
+  @media (min-width: 480px) { .dash-title { font-size: 28px; } }
+  .dash-sub { font-size: 10px; letter-spacing: 2px; color: #8a7c6a; text-transform: uppercase; margin-top: 4px; }
+  .dash-time { font-size: 11px; color: #8a7c6a; text-align: right; }
+  .dash-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 22px; }
+  @media (min-width: 720px) { .dash-stats { grid-template-columns: repeat(4, 1fr); gap: 12px; } }
+  .dash-stat { background: #1a3a3a; border-radius: 8px; padding: 14px; text-align: center; }
+  .dash-stat-num { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; color: #d4a574; font-weight: 500; line-height: 1.1; }
+  .dash-stat-lbl { font-size: 9px; letter-spacing: 1.5px; color: #a8b8a8; text-transform: uppercase; margin-top: 4px; }
+
+  .section-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 19px; color: #1a3a3a; font-weight: 500; margin: 24px 0 12px; }
+  .quick-actions { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .qa-btn { padding: 10px 16px; background: #fffdf7; border: 1px solid rgba(45,62,47,0.2); border-radius: 6px; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #1a3a3a; font-weight: 600; cursor: pointer; }
+  .qa-btn:hover { background: #1a3a3a; color: #faf7f0; }
+  .qa-btn.primary { background: #1a3a3a; color: #d4a574; }
+  .qa-btn.primary:hover { background: #2d5050; }
+
+  .client-list { display: grid; gap: 10px; }
+  .client-card { background: #fffdf7; border: 1px solid rgba(45,62,47,0.15); border-radius: 8px; padding: 14px; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 4px rgba(45,62,47,0.04); }
+  .client-card:hover { border-color: #c08552; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45,62,47,0.08); }
+  .client-card.expanded { background: #faf7f0; border-color: #1a3a3a; }
+  .client-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .client-info { flex: 1; min-width: 200px; }
+  .client-name { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 17px; color: #1a3a3a; font-weight: 500; }
+  .client-code { font-size: 10px; letter-spacing: 2px; color: #8a7c6a; text-transform: uppercase; margin-top: 2px; font-family: 'Courier New', monospace; }
+  .client-progress { display: flex; gap: 14px; align-items: center; }
+  .progress-num { text-align: center; }
+  .progress-num-val { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; color: #1a3a3a; font-weight: 500; line-height: 1; }
+  .progress-num-lbl { font-size: 9px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; margin-top: 3px; }
+  .progress-num-val.loved { color: #2d6a3a; }
+  .progress-num-val.passed { color: #b85a3d; }
+  .last-action { font-size: 11px; color: #8a7c6a; margin-top: 6px; font-style: italic; }
+  .client-status { display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; margin-left: 8px; }
+  .client-status.active { background: #ebf5ee; color: #2d6a3a; }
+  .client-status.complete { background: rgba(212,165,116,0.2); color: #8b5a2b; }
+  .client-status.idle { background: #f0ebe0; color: #8a7c6a; }
+
+  .client-detail { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(45,62,47,0.12); display: none; }
+  .client-card.expanded .client-detail { display: block; }
+  .detail-section { margin-bottom: 16px; }
+  .detail-title { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8a7c6a; margin-bottom: 8px; font-weight: 600; }
+  .home-list { display: grid; gap: 8px; }
+  .home-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fffdf7; border: 1px solid rgba(45,62,47,0.1); border-radius: 6px; gap: 10px; flex-wrap: wrap; }
+  .home-row.loved { border-left: 3px solid #2d6a3a; }
+  .home-row.passed { border-left: 3px solid #b85a3d; }
+  .home-info { flex: 1; min-width: 0; }
+  .home-addr { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; color: #1a3a3a; font-weight: 500; }
+  .home-meta { font-size: 11px; color: #8a7c6a; margin-top: 2px; }
+  .home-score { font-size: 12px; color: #c08552; font-weight: 600; }
+  .home-note { font-size: 11px; color: #4a5a4a; margin-top: 6px; padding: 6px 10px; background: rgba(192,133,82,0.1); border-radius: 3px; font-style: italic; width: 100%; }
+  .musts-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .must-tag { font-size: 10px; padding: 4px 10px; background: rgba(45,106,58,0.12); color: #2d6a3a; border-radius: 12px; font-weight: 500; }
+
+  .empty { text-align: center; padding: 40px 20px; color: #8a7c6a; }
+  .empty i { font-size: 40px; color: #c08552; margin-bottom: 8px; }
+
+  .modal-bd { position: fixed; inset: 0; background: rgba(26,58,58,0.65); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-bd.active { display: flex; }
+  .modal { background: #fffdf7; border: 2px solid #1a3a3a; border-radius: 12px; padding: 22px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 19px; color: #1a3a3a; margin: 0 0 6px; }
+  .modal p { font-size: 12px; color: #8a7c6a; margin: 0 0 16px; line-height: 1.5; }
+  .modal label { display: block; font-size: 10px; color: #8a7c6a; letter-spacing: 1px; text-transform: uppercase; margin: 12px 0 4px; font-weight: 600; }
+  .modal input { width: 100%; padding: 12px; background: #faf7f0; border: 1px solid rgba(45,62,47,0.25); border-radius: 6px; font-family: inherit; font-size: 14px; }
+  .modal input:focus { outline: none; border-color: #c08552; }
+  .modal-link-box { background: #1a3a3a; color: #d4a574; padding: 14px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 12px; word-break: break-all; margin-top: 6px; cursor: pointer; }
+  .modal-link-box:hover { background: #2d5050; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 18px; }
+  .modal-btn { flex: 1; padding: 12px; border-radius: 6px; font-family: inherit; font-size: 12px; cursor: pointer; border: 2px solid; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+  .modal-btn.primary { background: #1a3a3a; color: #faf7f0; border-color: #1a3a3a; }
+  .modal-btn.secondary { background: transparent; color: #4a5a4a; border-color: rgba(45,62,47,0.3); }
+  .copy-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a3a3a; color: #d4a574; padding: 12px 20px; border-radius: 24px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; }
+  .copy-toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="login-screen">
+  <div class="login-brand">CRISTIAN MILLAN</div>
+  <div class="login-sub">Realtor Dashboard</div>
+  <svg class="login-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#d4a574" d="M50 18 L18 42 L18 80 L42 80 L42 60 L58 60 L58 80 L82 80 L82 42 Z"/>
+    <path fill="#c08552" d="M50 56 C50 56 38 50 38 41 C38 36 41 33 45 33 C47 33 49 34 50 36 C51 34 53 33 55 33 C59 33 62 36 62 41 C62 50 50 56 50 56 Z"/>
+  </svg>
+  <div class="login-title">Enter access code</div>
+  <div class="login-form">
+    <input type="password" class="login-input" id="login-pw" placeholder="Password" autofocus>
+    <button class="login-btn" id="login-btn">Enter Dashboard</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div class="dash" id="dash" style="display:none">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">Realtor Dashboard</div>
+      <div class="dash-sub">Cristian Millan · Real Brokerage Utah</div>
+    </div>
+    <div class="dash-time" id="dash-time"></div>
+  </div>
+
+  <div class="dash-stats">
+    <div class="dash-stat"><div class="dash-stat-num" id="stat-clients">0</div><div class="dash-stat-lbl">Active Clients</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" id="stat-loves">0</div><div class="dash-stat-lbl">Total Loves</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" id="stat-actions">0</div><div class="dash-stat-lbl">Total Reviews</div></div>
+    <div class="dash-stat"><div class="dash-stat-num" id="stat-budget">$0</div><div class="dash-stat-lbl">Avg Loved Price</div></div>
+  </div>
+
+  <div class="quick-actions">
+    <button class="qa-btn primary" onclick="openNewClient()"><i class="ti ti-plus"></i> New Client Link</button>
+    <button class="qa-btn" onclick="exportAllCSV()"><i class="ti ti-download"></i> Export All (CSV)</button>
+    <button class="qa-btn" onclick="logout()"><i class="ti ti-logout"></i> Logout</button>
+  </div>
+
+  <div class="section-title">Active clients</div>
+  <div id="client-list" class="client-list"></div>
+</div>
+
+<div class="modal-bd" id="modal-bd">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<div class="copy-toast" id="copy-toast">Copied to clipboard</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyChX2Q6q-pZr7xHDnG31Xr0hLiItQn5m-0",
+  authDomain: "cmr-home-portfolio.firebaseapp.com",
+  databaseURL: "https://cmr-home-portfolio-default-rtdb.firebaseio.com",
+  projectId: "cmr-home-portfolio",
+  storageBucket: "cmr-home-portfolio.firebasestorage.app",
+  messagingSenderId: "872375961631",
+  appId: "1:872375961631:web:4834df880c9ea45ca0ad2a"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const CLIENT_NAMES = {
+  'ALE2026': 'Alejandra Salomon',
+  'DEMO': 'Demo Client'
+};
+
+const HOMES_LITE = {
+  1: {address: '1475 W Bright Eyes Ln', city: 'Saratoga Springs', price: 454900, type: 'New'},
+  2: {address: '2070 E Swallow Dr', city: 'Eagle Mountain', price: 504900, type: 'New'},
+  3: {address: 'Sweetwater Farmhouse', city: 'Eagle Mountain', price: 504900, type: 'New'},
+  4: {address: '283 N Roundabout St', city: 'Saratoga Springs', price: 529990, type: 'New'},
+  5: {address: '1616 E Duckwater Peak Dr', city: 'Eagle Mountain', price: 514400, type: 'New'},
+  6: {address: '363 E Halls Creek Rd', city: 'Saratoga Springs', price: 444990, type: 'New'},
+  7: {address: '279 E Kanab Creek Rd', city: 'Saratoga Springs', price: 449990, type: 'New'},
+  8: {address: '30 N Provo River Rd', city: 'Saratoga Springs', price: 499990, type: 'New'},
+  9: {address: '1568 W Banner Dr', city: 'Saratoga Springs', price: 491900, type: 'New'},
+  10: {address: '778 N Danverse Dr', city: 'Saratoga Springs', price: 505900, type: 'New'},
+  11: {address: '1551 W Banner Dr', city: 'Saratoga Springs', price: 487900, type: 'New'},
+  12: {address: '15203 S Tack Way', city: 'Bluffdale', price: 449900, type: 'Resale'},
+  13: {address: '1055 W Painted Horse Ln', city: 'Bluffdale', price: 435000, type: 'Resale'},
+  14: {address: '4035 E Oakland Hills Dr', city: 'Eagle Mountain', price: 444600, type: 'Resale'},
+  15: {address: '3612 E Ruby Ln', city: 'Eagle Mountain', price: 410000, type: 'Resale'}
+};
+
+// Change this password to your own — anyone who has it can see all your clients!
+const DASHBOARD_PASSWORD = 'cristian2026';
+
+let allClientsData = {};
+const el = (id) => document.getElementById(id);
+
+function checkLogin() {
+  if (sessionStorage.getItem('cmr_dashboard_auth') === 'yes') showDashboard();
+}
+
+el('login-btn').addEventListener('click', tryLogin);
+el('login-pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryLogin(); });
+
+function tryLogin() {
+  if (el('login-pw').value === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem('cmr_dashboard_auth', 'yes');
+    showDashboard();
+  } else {
+    el('login-error').textContent = 'Incorrect password';
+    el('login-pw').value = '';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('cmr_dashboard_auth');
+  location.reload();
+}
+
+function showDashboard() {
+  el('login-screen').classList.add('hidden');
+  el('dash').style.display = 'block';
+  updateTime();
+  setInterval(updateTime, 60000);
+  loadClients();
+}
+
+function updateTime() {
+  const now = new Date();
+  el('dash-time').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) + ' · ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function loadClients() {
+  db.ref('clients').on('value', snap => {
+    allClientsData = snap.val() || {};
+    renderDashboard();
+  });
+}
+
+function renderDashboard() {
+  const codes = Object.keys(allClientsData);
+  let totalLoves = 0, totalActions = 0, totalLovedPrice = 0, totalLovedCount = 0;
+
+  codes.forEach(code => {
+    const data = allClientsData[code];
+    const liked = data.liked || [];
+    const disliked = data.disliked || [];
+    totalLoves += liked.length;
+    totalActions += liked.length + disliked.length;
+    liked.forEach(id => {
+      if (HOMES_LITE[id]) { totalLovedPrice += HOMES_LITE[id].price; totalLovedCount++; }
+    });
+  });
+
+  el('stat-clients').textContent = codes.length;
+  el('stat-loves').textContent = totalLoves;
+  el('stat-actions').textContent = totalActions;
+  el('stat-budget').textContent = totalLovedCount ? '$' + Math.round(totalLovedPrice / totalLovedCount / 1000) + 'k' : '$0';
+
+  if (codes.length === 0) {
+    el('client-list').innerHTML = '<div class="empty"><i class="ti ti-users"></i><p>No clients yet. Click "New Client Link" to create your first one.</p></div>';
+    return;
+  }
+
+  codes.sort((a, b) => (allClientsData[b].lastUpdated || 0) - (allClientsData[a].lastUpdated || 0));
+
+  el('client-list').innerHTML = codes.map(code => {
+    const data = allClientsData[code];
+    const name = data.clientName || CLIENT_NAMES[code] || code;
+    const liked = data.liked || [];
+    const disliked = data.disliked || [];
+    const totalReviewed = liked.length + disliked.length;
+    const totalLeft = Math.max(0, 15 - totalReviewed);
+    const lastUpdate = data.lastUpdated ? new Date(data.lastUpdated) : null;
+    const minutesAgo = lastUpdate ? Math.floor((Date.now() - lastUpdate.getTime()) / 60000) : null;
+
+    let status = 'idle', statusText = 'Idle';
+    if (totalLeft === 0 && totalReviewed > 0) { status = 'complete'; statusText = 'Complete'; }
+    else if (minutesAgo !== null && minutesAgo < 5) { status = 'active'; statusText = 'Active now'; }
+    else if (minutesAgo !== null && minutesAgo < 60) { status = 'active'; statusText = 'Active ' + minutesAgo + 'm ago'; }
+
+    let lastActionText = 'No activity yet';
+    if (lastUpdate) {
+      if (minutesAgo < 1) lastActionText = 'Just now';
+      else if (minutesAgo < 60) lastActionText = minutesAgo + ' minute' + (minutesAgo === 1 ? '' : 's') + ' ago';
+      else if (minutesAgo < 1440) { const h = Math.floor(minutesAgo / 60); lastActionText = h + ' hour' + (h === 1 ? '' : 's') + ' ago'; }
+      else lastActionText = lastUpdate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    const lovedHtml = liked.length ? liked.map(id => {
+      const h = HOMES_LITE[id]; if (!h) return '';
+      const score = (data.scores || {})[id] || 0;
+      const note = (data.notes || {})[id] || '';
+      const rooms = (data.rooms || {})[id] || [];
+      return '<div class="home-row loved"><div class="home-info"><div class="home-addr">' + escapeHtml(h.address) + '</div><div class="home-meta">' + escapeHtml(h.city) + ' · $' + h.price.toLocaleString() + ' · ' + h.type + (rooms.length ? ' · Rooms: ' + escapeHtml(rooms.join(', ')) : '') + '</div>' + (note ? '<div class="home-note">' + escapeHtml(note) + '</div>' : '') + '</div>' + (score ? '<div class="home-score">' + score + '/10 ★</div>' : '') + '</div>';
+    }).join('') : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">No loves yet</div>';
+
+    const passedHtml = disliked.length ? disliked.map(id => {
+      const h = HOMES_LITE[id]; if (!h) return '';
+      const note = (data.notes || {})[id] || '';
+      return '<div class="home-row passed"><div class="home-info"><div class="home-addr">' + escapeHtml(h.address) + '</div><div class="home-meta">' + escapeHtml(h.city) + ' · $' + h.price.toLocaleString() + ' · ' + h.type + '</div>' + (note ? '<div class="home-note">' + escapeHtml(note) + '</div>' : '') + '</div></div>';
+    }).join('') : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">None passed</div>';
+
+    const mustHaves = Object.keys(data.mustHaves || {}).filter(k => data.mustHaves[k]);
+    const mustHavesHtml = mustHaves.length ? '<div class="musts-tags">' + mustHaves.map(m => '<span class="must-tag">✓ ' + escapeHtml(m) + '</span>').join('') + '</div>' : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">None marked</div>';
+
+    return '<div class="client-card" data-code="' + code + '" onclick="toggleExpand(\'' + code + '\')">' +
+      '<div class="client-row">' +
+        '<div class="client-info">' +
+          '<div class="client-name">' + escapeHtml(name) + ' <span class="client-status ' + status + '">' + statusText + '</span></div>' +
+          '<div class="client-code">code: ' + code + '</div>' +
+          '<div class="last-action">Last activity: ' + lastActionText + '</div>' +
+        '</div>' +
+        '<div class="client-progress">' +
+          '<div class="progress-num"><div class="progress-num-val loved">' + liked.length + '</div><div class="progress-num-lbl">Loved</div></div>' +
+          '<div class="progress-num"><div class="progress-num-val passed">' + disliked.length + '</div><div class="progress-num-lbl">Passed</div></div>' +
+          '<div class="progress-num"><div class="progress-num-val">' + totalLeft + '</div><div class="progress-num-lbl">Left</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="client-detail">' +
+        '<div class="detail-section"><div class="detail-title">Must-Haves</div>' + mustHavesHtml + '</div>' +
+        '<div class="detail-section"><div class="detail-title"><i class="ti ti-heart"></i> Loved (' + liked.length + ')</div><div class="home-list">' + lovedHtml + '</div></div>' +
+        '<div class="detail-section"><div class="detail-title"><i class="ti ti-x"></i> Passed (' + disliked.length + ')</div><div class="home-list">' + passedHtml + '</div></div>' +
+        '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
+          '<button class="qa-btn" onclick="event.stopPropagation();copyClientLink(\'' + code + '\')"><i class="ti ti-link"></i> Copy Link</button>' +
+          '<button class="qa-btn" onclick="event.stopPropagation();openAsClient(\'' + code + '\')"><i class="ti ti-external-link"></i> Open as Client</button>' +
+          '<button class="qa-btn" onclick="event.stopPropagation();deleteClient(\'' + code + '\')" style="color:#b85a3d;border-color:#b85a3d"><i class="ti ti-trash"></i> Delete</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleExpand(code) {
+  document.querySelectorAll('.client-card').forEach(card => {
+    if (card.dataset.code === code) card.classList.toggle('expanded');
+    else card.classList.remove('expanded');
+  });
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function openNewClient() {
+  el('modal-content').innerHTML = '<h3>Create new client link</h3>' +
+    '<p>Add a new client by giving them a unique code and name.</p>' +
+    '<label>Client name</label>' +
+    '<input type="text" id="new-name" placeholder="e.g. Maria Lopez" autofocus>' +
+    '<label>Access code (no spaces, all caps)</label>' +
+    '<input type="text" id="new-code" placeholder="e.g. MAR2026" maxlength="20" style="text-transform:uppercase">' +
+    '<div class="modal-btns">' +
+      '<button class="modal-btn secondary" onclick="closeModal()">Cancel</button>' +
+      '<button class="modal-btn primary" onclick="createClient()">Create Link</button>' +
+    '</div>';
+  el('modal-bd').classList.add('active');
+  setTimeout(() => el('new-name').focus(), 100);
+}
+
+function createClient() {
+  const name = el('new-name').value.trim();
+  const code = el('new-code').value.toUpperCase().replace(/\s/g, '').trim();
+  if (!name || !code) { alert('Please fill both fields'); return; }
+  if (CLIENT_NAMES[code] || allClientsData[code]) { alert('That code already exists. Pick a different one.'); return; }
+
+  const link = window.location.origin + window.location.pathname.replace('dashboard.html', '') + '?id=' + code;
+  const codeLine = "'" + code + "': '" + name.replace(/'/g, "\\'") + "'";
+  el('modal-content').innerHTML = '<h3>' + escapeHtml(name) + "'s link is ready</h3>" +
+    '<p>Tap each box below to copy. <strong>Important:</strong> add the client name line to your <code>index.html</code> and <code>dashboard.html</code> CLIENT_NAMES section before sharing the link.</p>' +
+    '<label>Client link (tap to copy)</label>' +
+    '<div class="modal-link-box" onclick="copyText(\'' + link + '\')">' + link + '</div>' +
+    '<label>Add this line to CLIENT_NAMES in both files</label>' +
+    '<div class="modal-link-box" onclick="copyText(&quot;' + codeLine.replace(/"/g, '&quot;') + '&quot;)">' + escapeHtml(codeLine) + ',</div>' +
+    '<div class="modal-btns">' +
+      '<button class="modal-btn primary" onclick="closeModal()">Done</button>' +
+    '</div>';
+}
+
+function copyClientLink(code) {
+  const link = window.location.origin + window.location.pathname.replace('dashboard.html', '') + '?id=' + code;
+  copyText(link);
+}
+
+function openAsClient(code) {
+  const link = window.location.pathname.replace('dashboard.html', '') + '?id=' + code;
+  window.open(link, '_blank');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = el('copy-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1800);
+  });
+}
+
+function deleteClient(code) {
+  if (!confirm('Delete all data for ' + code + '? This cannot be undone.')) return;
+  db.ref('clients/' + code).remove();
+}
+
+function closeModal() { el('modal-bd').classList.remove('active'); }
+el('modal-bd').addEventListener('click', (e) => { if (e.target.id === 'modal-bd') closeModal(); });
+
+function exportAllCSV() {
+  let csv = 'Client Code,Client Name,Action,Home Address,City,Price,Type,Score,Rooms,Notes\n';
+  Object.keys(allClientsData).forEach(code => {
+    const data = allClientsData[code];
+    const name = data.clientName || CLIENT_NAMES[code] || code;
+    (data.liked || []).forEach(id => {
+      const h = HOMES_LITE[id]; if (!h) return;
+      const score = (data.scores || {})[id] || '';
+      const rooms = ((data.rooms || {})[id] || []).join('; ');
+      const note = ((data.notes || {})[id] || '').replace(/"/g, '""');
+      csv += code + ',"' + name + '",LOVED,"' + h.address + '","' + h.city + '",' + h.price + ',' + h.type + ',' + score + ',"' + rooms + '","' + note + '"\n';
+    });
+    (data.disliked || []).forEach(id => {
+      const h = HOMES_LITE[id]; if (!h) return;
+      const note = ((data.notes || {})[id] || '').replace(/"/g, '""');
+      csv += code + ',"' + name + '",PASSED,"' + h.address + '","' + h.city + '",' + h.price + ',' + h.type + ',,,"' + note + '"\n';
+    });
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'cmr-clients-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+checkLogin();
+</script>
+</body>
+</html>
