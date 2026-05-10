@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Seed Alejandra's Data</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #faf7f0; color: #2d3e2f; }
+  h1 { color: #1a3a3a; }
+  button { padding: 14px 24px; background: #1a3a3a; color: #d4a574; border: none; border-radius: 8px; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; font-weight: 600; }
+  button:hover { background: #2d5050; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { margin-top: 20px; padding: 16px; border-radius: 8px; font-size: 14px; }
+  .status.info { background: #fffdf7; border: 1px solid #d4a574; color: #8b5a2b; }
+  .status.success { background: #ebf5ee; border: 1px solid #2d6a3a; color: #2d6a3a; }
+  .status.error { background: #fef0eb; border: 1px solid #b85a3d; color: #b85a3d; }
+  pre { background: #fffdf7; padding: 12px; border-radius: 6px; font-size: 12px; overflow-x: auto; border: 1px solid #d4cdbe; }
+  ul { font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>🌱 Seed Alejandra's Profile</h1>
+<p>This is a <strong>one-time script</strong> that will load Alejandra's previous activity into Firebase. After running it, delete this file.</p>
+
+<div class="status info">
+  <strong>This will create state for ALE2026 with:</strong>
+  <ul>
+    <li><strong>Loved (3):</strong> Casa 1, 9, 10</li>
+    <li><strong>Passed (11):</strong> Casa 2, 3, 4, 5, 6, 7, 8, 11, 12, 14 (and Note on Casa 3)</li>
+    <li><strong>Pending (2):</strong> Casa 13, 15</li>
+  </ul>
+</div>
+
+<button id="seed-btn">⚡ Load Alejandra's data into Firebase</button>
+
+<div id="status"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyChX2Q6q-pZr7xHDnG31Xr0hLiItQn5m-0",
+  authDomain: "cmr-home-portfolio.firebaseapp.com",
+  databaseURL: "https://cmr-home-portfolio-default-rtdb.firebaseio.com",
+  projectId: "cmr-home-portfolio",
+  storageBucket: "cmr-home-portfolio.firebasestorage.app",
+  messagingSenderId: "872375961631",
+  appId: "1:872375961631:web:4834df880c9ea45ca0ad2a"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const alejandraData = {
+  liked: [1, 9, 10],
+  disliked: [2, 3, 4, 5, 6, 7, 8, 11, 12, 14],
+  notes: {
+    "3": "Love but too far"
+  },
+  scores: {},
+  rooms: {},
+  mustHaves: {},
+  compareIds: [],
+  filter: "all",
+  reviewView: "loved",
+  viewedIds: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14],
+  galleryIdx: {},
+  lastAction: null,
+  clientName: "Alejandra Salomon",
+  lastUpdated: firebase.database.ServerValue.TIMESTAMP
+};
+
+document.getElementById('seed-btn').addEventListener('click', () => {
+  const btn = document.getElementById('seed-btn');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  status.innerHTML = '<div class="status info">Saving to Firebase...</div>';
+
+  db.ref('clients/ALE2026').set(alejandraData).then(() => {
+    status.innerHTML = `
+      <div class="status success">
+        <strong>✅ Done! Alejandra's profile is loaded.</strong><br><br>
+        Now you can:<br>
+        1. Open <a href="?id=ALE2026">Alejandra's portal</a> — should show her 3 loved homes<br>
+        2. Open <a href="dashboard.html">Realtor dashboard</a> — should show her with 3 loved, 10 passed, 2 left<br><br>
+        <strong>Important:</strong> Delete this file from GitHub after testing — anyone who finds this URL could overwrite Alejandra's data.
+      </div>
+      <pre>${JSON.stringify(alejandraData, null, 2)}</pre>
+    `;
+  }).catch(err => {
+    status.innerHTML = `<div class="status error"><strong>❌ Error:</strong> ${err.message}</div>`;
+    btn.disabled = false;
+  });
+});
+</script>
+</body>
+</html>
