@@ -142,15 +142,85 @@
   .reconsider-btn { font-size: 9px; padding: 4px 8px; background: #2d6a3a; color: #faf7f0; border: none; border-radius: 3px; cursor: pointer; margin-top: 6px; font-family: inherit; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
   .reconsider-btn:hover { background: #1f5028; }
 
-  .checklist { background: #fffdf7; border: 1px solid rgba(45, 62, 47, 0.15); border-radius: var(--border-radius-md); padding: 16px; box-shadow: 0 1px 4px rgba(45, 62, 47, 0.04); }
-  .checklist-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 16px; margin-bottom: 12px; font-weight: 500; }
-  .check-row { display: flex; align-items: center; gap: 12px; padding: 10px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; transition: background 0.15s; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  .check-row:active { background: rgba(192, 133, 82, 0.15); }
-  .check-row:hover { background: rgba(192, 133, 82, 0.08); }
-  .check-box { width: 22px; height: 22px; border: 2px solid rgba(45, 62, 47, 0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #faf7f0; transition: all 0.15s; background: #fffdf7; flex-shrink: 0; }
-  .check-row.checked .check-box { background: #1a3a3a; border-color: #1a3a3a; }
-  .check-row.checked .check-label { color: #1a3a3a; font-weight: 500; }
-  .check-label { color: #4a5a4a; flex: 1; }
+  /* Must-Haves redesigned - priority ranking system */
+  .mh-container { display: flex; flex-direction: column; gap: 14px; }
+
+  /* Wizard / empty state */
+  .mh-wizard { background: linear-gradient(135deg, #1a3a3a 0%, #2d5050 100%); color: #faf7f0; border-radius: 12px; padding: 20px 18px; text-align: center; }
+  .mh-wizard-icon { font-size: 28px; color: #d4a574; margin-bottom: 8px; display: block; }
+  .mh-wizard h3 { font-family: var(--font-serif); font-size: 18px; margin: 0 0 6px; color: #d4a574; font-weight: 500; }
+  .mh-wizard p { font-size: 12px; color: #c8d0c4; line-height: 1.5; margin: 0 0 14px; }
+  .mh-wizard-cta { background: #d4a574; color: #1a3a3a; border: none; padding: 11px 20px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mh-wizard-cta:active { transform: scale(0.97); }
+
+  /* Selection grid (when adding priorities) */
+  .mh-select-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .mh-select-sub { font-size: 11px; color: #8a7c6a; margin-bottom: 12px; }
+  .mh-select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mh-option { background: #fffdf7; border: 1.5px solid rgba(45,62,47,0.15); border-radius: 8px; padding: 10px; cursor: pointer; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+  .mh-option:active { transform: scale(0.97); }
+  .mh-option.selected { background: #1a3a3a; border-color: #1a3a3a; color: #d4a574; }
+  .mh-option.selected .mh-option-rank { background: #d4a574; color: #1a3a3a; }
+  .mh-option.disabled { opacity: 0.4; cursor: not-allowed; }
+  .mh-option-icon { font-size: 18px; flex-shrink: 0; }
+  .mh-option-text { font-size: 12px; line-height: 1.2; flex: 1; }
+  .mh-option-rank { width: 20px; height: 20px; background: rgba(192,133,82,0.2); color: #c08552; border-radius: 50%; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mh-option.selected .mh-option-rank { display: flex; }
+
+  /* Priority list (the ranked top 3) */
+  .mh-section { background: #fffdf7; border: 1px solid rgba(45,62,47,0.15); border-radius: 10px; padding: 14px; }
+  .mh-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .mh-section-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 15px; font-weight: 500; }
+  .mh-section-link { font-size: 11px; color: #c08552; cursor: pointer; -webkit-tap-highlight-color: transparent; font-weight: 600; }
+  .mh-section-link:active { opacity: 0.6; }
+  .mh-priority-list { display: flex; flex-direction: column; gap: 6px; }
+  .mh-priority-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f5f1ea; border-radius: 6px; }
+  .mh-priority-rank { background: #1a3a3a; color: #d4a574; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .mh-priority-rank.gold { background: #c08552; color: #fff; }
+  .mh-priority-text { flex: 1; font-size: 13px; color: #1a3a3a; font-weight: 500; line-height: 1.2; }
+  .mh-priority-weight { font-size: 10px; color: #8a7c6a; }
+  .mh-priority-arrows { display: flex; flex-direction: column; gap: 2px; }
+  .mh-priority-arrows button { width: 22px; height: 18px; background: rgba(26,58,58,0.15); color: #1a3a3a; border: none; border-radius: 3px; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; padding: 0; }
+  .mh-priority-arrows button:active { transform: scale(0.9); }
+  .mh-priority-arrows button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .mh-priority-remove { width: 24px; height: 24px; background: transparent; color: #a83a30; border: none; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+  .mh-priority-remove:active { background: rgba(168,58,48,0.15); }
+
+  /* Match scores list */
+  .mh-match-card { display: flex; align-items: center; gap: 10px; padding: 10px; background: #fffdf7; border: 1px solid rgba(45,62,47,0.12); border-radius: 8px; margin-bottom: 6px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all 0.15s; }
+  .mh-match-card:active { transform: scale(0.99); }
+  .mh-match-thumb { width: 50px; height: 50px; background-size: cover; background-position: center; border-radius: 6px; flex-shrink: 0; background-color: #e8e4d8; }
+  .mh-match-info { flex: 1; min-width: 0; }
+  .mh-match-address { font-family: var(--font-serif); color: #1a3a3a; font-size: 13px; font-weight: 600; line-height: 1.2; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mh-match-criteria { font-size: 9px; line-height: 1.4; color: #5a6a5a; }
+  .mh-match-criteria .yes { color: #2d6a3a; font-weight: 600; margin-right: 5px; }
+  .mh-match-criteria .no { color: #a83a30; opacity: 0.65; margin-right: 5px; }
+  .mh-match-score { padding: 6px 8px; border-radius: 8px; text-align: center; min-width: 46px; }
+  .mh-match-score .num { font-size: 16px; font-weight: 800; line-height: 1; color: #fff; }
+  .mh-match-score .lbl { font-size: 7px; letter-spacing: 0.5px; color: #fff; opacity: 0.85; margin-top: 1px; }
+  .mh-match-score.high { background: #2d6a3a; }
+  .mh-match-score.medium { background: #c08552; }
+  .mh-match-score.low { background: #8a7c6a; }
+
+  /* Insight card */
+  .mh-insight { background: linear-gradient(135deg, #1a3a3a 0%, #2d5050 100%); color: #faf7f0; border-radius: 10px; padding: 14px 16px; position: relative; }
+  .mh-insight-dismiss { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; background: rgba(255,255,255,0.1); border: none; color: #faf7f0; border-radius: 50%; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+  .mh-insight-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #d4a574; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; }
+  .mh-insight-text { font-size: 12px; line-height: 1.5; color: #faf7f0; margin-bottom: 0; }
+  .mh-insight-text b { color: #d4a574; }
+
+  /* Match badge on discover cards */
+  .home-match-badge { position: absolute; top: 12px; right: 12px; background: rgba(26,58,58,0.92); color: #faf7f0; padding: 6px 10px 6px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px; z-index: 3; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .home-match-badge.high { background: rgba(45,106,58,0.92); }
+  .home-match-badge.medium { background: rgba(192,133,82,0.92); }
+  .home-match-badge .star { color: #d4a574; font-size: 11px; }
+  .home-match-badge.high .star { color: #d4a574; }
+
+  /* Sort toggle for Reviewed tab */
+  .review-sort { display: flex; gap: 6px; margin-bottom: 12px; }
+  .review-sort-btn { flex: 1; padding: 8px; background: #fffdf7; border: 1px solid rgba(45,62,47,0.2); border-radius: 6px; font-size: 11px; color: #4a5a4a; cursor: pointer; -webkit-tap-highlight-color: transparent; font-family: inherit; letter-spacing: 0.5px; }
+  .review-sort-btn.active { background: #1a3a3a; color: #d4a574; border-color: #1a3a3a; font-weight: 600; }
+  .review-sort-btn:active { transform: scale(0.98); }
 
   .modal-backdrop { position: fixed; inset: 0; background: rgba(26, 58, 58, 0.65); z-index: 100; display: none; align-items: flex-end; justify-content: center; padding: 0; }
   @media (min-width: 480px) { .modal-backdrop { align-items: center; padding: 20px; } }
@@ -492,9 +562,8 @@
   </div>
 
   <div class="lodge-view" id="view-checklist">
-    <div class="checklist">
-      <div class="checklist-title" id="checklist-title">Alejandra's Must-Haves</div>
-      <div id="checklist-items"></div>
+    <div class="mh-container">
+      <div id="mh-content"></div>
     </div>
   </div>
 
@@ -746,7 +815,28 @@ const HOMES = [
   }
 ];
 
-const MUST_HAVES = ['3+ bedrooms', '2+ bathrooms', 'Open kitchen', 'Master on main', '2-car garage', 'Mountain views', 'New construction', 'Walk-in closet', 'Office space', 'Outdoor patio', 'Quiet street', 'Near schools'];
+// Must-Have catalog: each criterion has an ID, label, icon, and a matcher function
+// The matcher receives a home object and returns true if the home satisfies the criterion
+const MUST_HAVES_CATALOG = [
+  { id: 'new_only', label: 'New construction', icon: '🆕', match: h => h.construction === 'new' },
+  { id: 'basement', label: 'Has basement', icon: '⬇️', match: h => /basement/i.test((h.features || []).join(' ')) },
+  { id: 'mountain', label: 'Mountain views', icon: '🏔️', match: h => /mountain|view/i.test((h.features || []).join(' ')) },
+  { id: 'singlefam', label: 'Single-family (no townhome)', icon: '🏠', match: h => /single-family/i.test(h.lot || '') },
+  { id: 'rate_incentive', label: 'Rate incentive', icon: '🔥', match: h => !!h.specialRate },
+  { id: 'low_hoa', label: 'Low HOA (under $150)', icon: '💵', match: h => (h.hoa || 0) < 150 },
+  { id: 'under_450k', label: 'Under $450k', icon: '💰', match: h => h.price < 450000 },
+  { id: 'under_500k', label: 'Under $500k', icon: '💰', match: h => h.price < 500000 },
+  { id: 'beds_4plus', label: '4+ bedrooms', icon: '🛏️', match: h => h.beds >= 4 },
+  { id: 'baths_3plus', label: '3+ bathrooms', icon: '🚿', match: h => h.baths >= 3 },
+  { id: 'sqft_2200', label: '2,200+ sqft', icon: '📐', match: h => h.sqft >= 2200 },
+  { id: 'saratoga', label: 'Saratoga Springs only', icon: '🏙️', match: h => /Saratoga Springs/i.test(h.city) },
+  { id: 'no_eagle', label: 'Not Eagle Mountain', icon: '🚫', match: h => !/Eagle Mountain/i.test(h.city) },
+  { id: 'garage_2', label: '2-car garage', icon: '🚗', match: h => /2-car|2 car/i.test((h.features || []).join(' ')) || true },
+  { id: 'modern', label: 'Recently built (2020+)', icon: '✨', match: h => /202[0-9]|2025|2026/i.test(h.lot || '') || h.construction === 'new' }
+];
+
+// Legacy MUST_HAVES kept for backwards compatibility but no longer used
+const MUST_HAVES = MUST_HAVES_CATALOG.map(m => m.label);
 const ROOMS = ['Kitchen', 'Master Suite', 'Living Room', 'Backyard', 'Office', 'Basement', 'Garage', 'Bathroom'];
 const STORAGE_KEY = 'alejandra_homes_v2';
 
@@ -824,7 +914,7 @@ function showSyncStatus(status) {
   }
 }
 
-const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, compareIds: [], scenarios: {}, filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, compareImgIdx: {}, lastAction: null };
+const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, priorities: [], dismissedInsights: {}, reviewSort: 'recent', compareIds: [], scenarios: {}, filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, compareImgIdx: {}, lastAction: null };
 
 // Firebase load/save - syncs across all devices using client code
 let saveTimeout = null;
@@ -892,6 +982,9 @@ function save() {
       scores: state.scores || {},
       rooms: state.rooms || {},
       mustHaves: state.mustHaves || {},
+      priorities: state.priorities || [],
+      dismissedInsights: state.dismissedInsights || {},
+      reviewSort: state.reviewSort || 'recent',
       compareIds: state.compareIds || [],
       scenarios: state.scenarios || {},
       filter: state.filter || 'all',
@@ -955,12 +1048,15 @@ function renderStack() {
     const gIdx = state.galleryIdx[h.id] || 0;
     const dots = h.imgs.map((_, di) => `<div class="gallery-dot ${di === gIdx ? 'active' : ''}"></div>`).join('');
     const badge = h.construction === 'new' ? '<div class="construction-badge new">New Build</div>' : '<div class="construction-badge resale">Resale</div>';
+    const matchScore = calcMatchScore(h);
+    const matchBadgeHTML = (matchScore !== null) ? `<div class="home-match-badge ${getMatchScoreClass(matchScore)}" onclick="event.stopPropagation();lodgeApp.showMatchDetail(${h.id})"><span class="star">★</span> ${matchScore}% match</div>` : '';
     return `<div class="home-card ${!isTop ? 'behind' : ''}" data-id="${h.id}" style="z-index:${i+1}">
       <div class="home-stamp like">LOVE</div>
       <div class="home-stamp dislike">PASS</div>
       <div class="home-image-wrap">
         <div class="home-image" style="background-image:url('${h.imgs[gIdx]}')"></div>
         ${badge}
+        ${matchBadgeHTML}
         <div class="gallery-dots">${dots}</div>
         <div class="gallery-nav prev" onclick="event.stopPropagation();lodgeApp.galleryNav(${h.id},-1)"></div>
         <div class="gallery-nav next" onclick="event.stopPropagation();lodgeApp.galleryNav(${h.id},1)"></div>
@@ -1112,14 +1208,38 @@ function updateCounts() {
 
 function renderReview() {
   const grid = el('liked-grid');
-  const ids = state.reviewView === 'loved' ? state.liked : state.disliked;
+  let ids = state.reviewView === 'loved' ? [...state.liked] : [...state.disliked];
+
+  // Show sort toggle only on loved view + if user has priorities + 2+ loved
+  const showSort = state.reviewView === 'loved' && (state.priorities || []).length > 0 && ids.length >= 2;
+  const sortMode = state.reviewSort || 'recent';
+
+  if (showSort && sortMode === 'match') {
+    // Sort loved homes by match score (descending)
+    ids.sort((a, b) => {
+      const ha = HOMES.find(h => h.id === a);
+      const hb = HOMES.find(h => h.id === b);
+      if (!ha || !hb) return 0;
+      return calcMatchScore(hb) - calcMatchScore(ha);
+    });
+  }
+
+  let sortHTML = '';
+  if (showSort) {
+    sortHTML = `<div class="review-sort">
+      <button class="review-sort-btn ${sortMode === 'recent' ? 'active' : ''}" onclick="lodgeApp.setReviewSort('recent')"><i class="ti ti-clock"></i> Recent</button>
+      <button class="review-sort-btn ${sortMode === 'match' ? 'active' : ''}" onclick="lodgeApp.setReviewSort('match')"><i class="ti ti-target"></i> Best match</button>
+    </div>`;
+  }
+
   if (ids.length === 0) {
     const msg = state.reviewView === 'loved' ? 'No loves yet' : 'No passes yet';
     const sub = state.reviewView === 'loved' ? 'Swipe right on homes you love' : 'Homes you swipe left on appear here';
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-${state.reviewView === 'loved' ? 'heart' : 'x'}"></i><h3>${msg}</h3><p>${sub}</p></div>`;
+    grid.innerHTML = sortHTML + `<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-${state.reviewView === 'loved' ? 'heart' : 'x'}"></i><h3>${msg}</h3><p>${sub}</p></div>`;
     return;
   }
-  grid.innerHTML = ids.map(id => {
+
+  const cardsHTML = ids.map(id => {
     const h = HOMES.find(x => x.id === id);
     if (!h) return '';
     const score = state.scores[id] || 0;
@@ -1127,8 +1247,20 @@ function renderReview() {
     const cls = state.reviewView === 'loved' ? 'loved' : 'passed';
     const badge = h.construction === 'new' ? '<div class="liked-badge new">New</div>' : '<div class="liked-badge resale">Resale</div>';
     const reconsiderBtn = state.reviewView === 'passed' ? `<button class="reconsider-btn" onclick="event.stopPropagation();lodgeApp.reconsider(${id})"><i class="ti ti-rotate"></i> Reconsider</button>` : '';
+
+    // Show match score badge if priorities set and on loved view
+    let matchBadge = '';
+    if (state.reviewView === 'loved' && (state.priorities || []).length > 0) {
+      const ms = calcMatchScore(h);
+      if (ms !== null) {
+        const msCls = getMatchScoreClass(ms);
+        const bgMap = { high: '#2d6a3a', medium: '#c08552', low: '#8a7c6a' };
+        matchBadge = `<div style="position:absolute;top:6px;right:6px;background:${bgMap[msCls]};color:#fff;padding:3px 7px;border-radius:10px;font-size:9px;font-weight:700;z-index:2">${ms}%</div>`;
+      }
+    }
+
     return `<div class="liked-card ${cls} ${sel}" onclick="lodgeApp.openLiked(${id})">
-      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}')">${badge}</div>
+      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}');position:relative">${badge}${matchBadge}</div>
       <div class="liked-price">${fmtFull(h.price)}</div>
       <div class="liked-addr">${h.address}</div>
       <div class="liked-addr" style="font-size:10px">${h.city}</div>
@@ -1136,6 +1268,15 @@ function renderReview() {
       ${reconsiderBtn}
     </div>`;
   }).join('');
+
+  // Inject sort BEFORE the grid items
+  grid.innerHTML = (showSort ? `<div style="grid-column:1/-1">${sortHTML}</div>` : '') + cardsHTML;
+}
+
+function setReviewSort(mode) {
+  state.reviewSort = mode;
+  save();
+  renderReview();
 }
 
 function setReviewView(v) {
@@ -1144,14 +1285,301 @@ function setReviewView(v) {
   save(); renderReview();
 }
 
+// ============================================================================
+// MUST-HAVES — Priority ranking system with match score calculation
+// ============================================================================
+
+// Match score: 0-100, weighted by priority rank (50%/30%/20%)
+const PRIORITY_WEIGHTS = [50, 30, 20];
+
+function calcMatchScore(home) {
+  const prios = state.priorities || [];
+  if (prios.length === 0) return null; // no priorities = no score
+  let score = 0;
+  let maxScore = 0;
+  prios.slice(0, 3).forEach((mhId, idx) => {
+    const weight = PRIORITY_WEIGHTS[idx] || 0;
+    maxScore += weight;
+    const criterion = MUST_HAVES_CATALOG.find(c => c.id === mhId);
+    if (criterion && criterion.match(home)) {
+      score += weight;
+    }
+  });
+  return maxScore === 0 ? null : Math.round((score / maxScore) * 100);
+}
+
+function getMatchScoreClass(score) {
+  if (score === null || score === undefined) return '';
+  if (score >= 80) return 'high';
+  if (score >= 50) return 'medium';
+  return 'low';
+}
+
+// Render the entire Must-Haves view (handles wizard, selection, ranked list, matches)
 function renderChecklist() {
-  el('checklist-items').innerHTML = MUST_HAVES.map(item => {
-    const checked = state.mustHaves[item] ? 'checked' : '';
-    return `<div class="check-row ${checked}" onclick="lodgeApp.toggleMust('${item.replace(/'/g, "\\'")}')">
-      <div class="check-box">${state.mustHaves[item] ? '<i class="ti ti-check"></i>' : ''}</div>
-      <div class="check-label">${item}</div>
+  const content = el('mh-content');
+  const prios = state.priorities || [];
+
+  // STATE 1: No priorities set yet → show wizard
+  if (prios.length === 0) {
+    content.innerHTML = renderMHWizard();
+    return;
+  }
+
+  // STATE 2: Has priorities → show full dashboard
+  let html = '';
+  html += renderInsightCard();
+  html += renderMHPriorities();
+  html += renderMHMatches();
+  html += renderMHAddMore();
+  content.innerHTML = html;
+}
+
+function renderMHWizard() {
+  return `<div class="mh-wizard">
+    <span class="mh-wizard-icon"><i class="ti ti-target"></i></span>
+    <h3>What matters most to you?</h3>
+    <p>Pick your top 3 priorities. We'll calculate a match score for every home so you can decide faster.</p>
+    <button class="mh-wizard-cta" onclick="lodgeApp.openMHSelector()"><i class="ti ti-list-check"></i> Set my priorities</button>
+  </div>`;
+}
+
+function renderMHPriorities() {
+  const prios = state.priorities || [];
+  const items = prios.map((id, idx) => {
+    const c = MUST_HAVES_CATALOG.find(x => x.id === id);
+    if (!c) return '';
+    const weight = PRIORITY_WEIGHTS[idx] || 0;
+    const isFirst = idx === 0;
+    const isLast = idx === prios.length - 1;
+    return `<div class="mh-priority-item">
+      <div class="mh-priority-rank ${isFirst ? 'gold' : ''}">${idx + 1}</div>
+      <div class="mh-priority-text">${c.icon} ${c.label}<div class="mh-priority-weight">${weight}% of match score</div></div>
+      <div class="mh-priority-arrows">
+        <button onclick="lodgeApp.movePriority(${idx}, -1)" ${isFirst ? 'disabled' : ''} aria-label="Move up">▲</button>
+        <button onclick="lodgeApp.movePriority(${idx}, 1)" ${isLast ? 'disabled' : ''} aria-label="Move down">▼</button>
+      </div>
+      <button class="mh-priority-remove" onclick="lodgeApp.removePriority('${id}')" aria-label="Remove">×</button>
     </div>`;
   }).join('');
+
+  return `<div class="mh-section">
+    <div class="mh-section-header">
+      <div class="mh-section-title">Your priorities</div>
+      <span class="mh-section-link" onclick="lodgeApp.openMHSelector()">+ Edit</span>
+    </div>
+    <div class="mh-priority-list">${items}</div>
+  </div>`;
+}
+
+function renderMHAddMore() {
+  const prios = state.priorities || [];
+  if (prios.length >= 3) return '';
+  return `<div class="mh-section">
+    <div style="text-align:center;padding:8px 0">
+      <button class="mh-wizard-cta" style="background:#1a3a3a;color:#d4a574" onclick="lodgeApp.openMHSelector()"><i class="ti ti-plus"></i> Add more priorities (${prios.length}/3)</button>
+    </div>
+  </div>`;
+}
+
+function renderMHMatches() {
+  const prios = state.priorities || [];
+  if (prios.length === 0) return '';
+
+  // Get loved homes, sorted by match score
+  const liked = state.liked.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
+  if (liked.length === 0) {
+    return `<div class="mh-section">
+      <div class="mh-section-header">
+        <div class="mh-section-title">Match scores</div>
+      </div>
+      <div style="text-align:center;padding:14px;font-size:12px;color:#8a7c6a">
+        Love some homes in Discover to see how they match your priorities.
+      </div>
+    </div>`;
+  }
+
+  const scored = liked.map(h => ({ home: h, score: calcMatchScore(h) })).sort((a,b) => b.score - a.score);
+
+  const items = scored.map(({ home, score }) => {
+    const criteriaHTML = prios.slice(0, 3).map(id => {
+      const c = MUST_HAVES_CATALOG.find(x => x.id === id);
+      if (!c) return '';
+      const matches = c.match(home);
+      return `<span class="${matches ? 'yes' : 'no'}">${matches ? '✓' : '✗'} ${c.label}</span>`;
+    }).join(' ');
+
+    return `<div class="mh-match-card" onclick="lodgeApp.openLiked(${home.id})">
+      <div class="mh-match-thumb" style="background-image:url('${home.imgs[0]}')"></div>
+      <div class="mh-match-info">
+        <div class="mh-match-address">${home.address}</div>
+        <div class="mh-match-criteria">${criteriaHTML}</div>
+      </div>
+      <div class="mh-match-score ${getMatchScoreClass(score)}">
+        <div class="num">${score}</div>
+        <div class="lbl">MATCH</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="mh-section">
+    <div class="mh-section-header">
+      <div class="mh-section-title">Your loves, ranked</div>
+      <span style="font-size:10px;color:#8a7c6a">${liked.length} home${liked.length === 1 ? '' : 's'}</span>
+    </div>
+    <div>${items}</div>
+  </div>`;
+}
+
+function renderInsightCard() {
+  const insight = computeInsight();
+  if (!insight) return '';
+  const key = insight.key;
+  if (state.dismissedInsights && state.dismissedInsights[key]) return '';
+  return `<div class="mh-insight">
+    <button class="mh-insight-dismiss" onclick="lodgeApp.dismissInsight('${key}')" aria-label="Dismiss">×</button>
+    <div class="mh-insight-header"><span>💡</span> Insight</div>
+    <div class="mh-insight-text">${insight.text}</div>
+  </div>`;
+}
+
+function computeInsight() {
+  const prios = state.priorities || [];
+  const liked = state.liked.map(id => HOMES.find(h => h.id === id)).filter(Boolean);
+
+  // Insight 1: If 3+ loves all match priority #1, suggest it's solid
+  if (prios.length >= 1 && liked.length >= 3) {
+    const top = MUST_HAVES_CATALOG.find(c => c.id === prios[0]);
+    if (top) {
+      const allMatch = liked.every(h => top.match(h));
+      if (allMatch) {
+        return { key: `confirm_${prios[0]}`, text: `<b>${top.icon} ${top.label}</b> is clearly important: <b>all ${liked.length} loved homes</b> have it. This is your strongest preference.` };
+      }
+      const noneMatch = liked.every(h => !top.match(h));
+      if (noneMatch) {
+        return { key: `contradict_${prios[0]}`, text: `Heads up: <b>none</b> of your ${liked.length} loved homes match <b>${top.label}</b> (your #1 priority). Maybe rerank?` };
+      }
+    }
+  }
+
+  // Insight 2: If has priorities but no loves yet
+  if (prios.length > 0 && liked.length === 0) {
+    const top = MUST_HAVES_CATALOG.find(c => c.id === prios[0]);
+    const matching = HOMES.filter(h => top && top.match(h)).length;
+    return { key: `start_${prios[0]}`, text: `${matching} home${matching === 1 ? '' : 's'} in your portfolio match your #1 priority <b>${top.label}</b>. Head to Discover and we'll show you match scores on every card.` };
+  }
+
+  return null;
+}
+
+function dismissInsight(key) {
+  if (!state.dismissedInsights) state.dismissedInsights = {};
+  state.dismissedInsights[key] = true;
+  save();
+  renderChecklist();
+}
+
+// Open modal showing all 15 options for selecting top 3
+function openMHSelector() {
+  const prios = state.priorities || [];
+  const optionsHTML = MUST_HAVES_CATALOG.map(c => {
+    const selectedIdx = prios.indexOf(c.id);
+    const isSelected = selectedIdx !== -1;
+    const isDisabled = !isSelected && prios.length >= 3;
+    return `<div class="mh-option ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}" onclick="${isDisabled ? '' : `lodgeApp.toggleMHPriority('${c.id}')`}">
+      <span class="mh-option-icon">${c.icon}</span>
+      <span class="mh-option-text">${c.label}</span>
+      <span class="mh-option-rank">${isSelected ? selectedIdx + 1 : ''}</span>
+    </div>`;
+  }).join('');
+
+  el('modal-content').innerHTML = `
+    <div class="modal-title">Pick your top 3 priorities</div>
+    <div class="mh-select-sub">Tap to add (max 3). First pick = highest priority (50% of score).</div>
+    <div class="mh-select-grid" id="mh-select-grid">${optionsHTML}</div>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button onclick="lodgeApp.closeModal()" style="flex:1;padding:11px;background:#1a3a3a;color:#d4a574;border:none;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Done</button>
+    </div>`;
+  el('modal').classList.add('active');
+}
+
+function toggleMHPriority(id) {
+  if (!state.priorities) state.priorities = [];
+  const idx = state.priorities.indexOf(id);
+  if (idx !== -1) {
+    state.priorities.splice(idx, 1);
+  } else if (state.priorities.length < 3) {
+    state.priorities.push(id);
+  }
+  save();
+  // Re-render modal so users can see updated ranking
+  openMHSelector();
+  renderChecklist();
+  // Also re-render the discover stack to show updated match badges
+  renderStack();
+}
+
+function movePriority(idx, direction) {
+  if (!state.priorities) return;
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= state.priorities.length) return;
+  [state.priorities[idx], state.priorities[newIdx]] = [state.priorities[newIdx], state.priorities[idx]];
+  save();
+  renderChecklist();
+  renderStack();
+}
+
+function removePriority(id) {
+  if (!state.priorities) return;
+  const idx = state.priorities.indexOf(id);
+  if (idx !== -1) state.priorities.splice(idx, 1);
+  save();
+  renderChecklist();
+  renderStack();
+}
+
+// Show modal with breakdown of how a home matches priorities
+function showMatchDetail(homeId) {
+  const home = HOMES.find(h => h.id === homeId);
+  if (!home) return;
+  const prios = state.priorities || [];
+  if (prios.length === 0) {
+    el('modal-content').innerHTML = `
+      <div class="modal-title">No priorities set</div>
+      <p style="font-size:13px;color:#5a6a5a;line-height:1.5;margin-bottom:14px">Set your top 3 priorities to see how each home matches them.</p>
+      <button style="width:100%;padding:11px;background:#1a3a3a;color:#d4a574;border:none;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer" onclick="lodgeApp.closeModal();lodgeApp.openMHSelector()">Set my priorities</button>`;
+    el('modal').classList.add('active');
+    return;
+  }
+  const score = calcMatchScore(home);
+  const cls = getMatchScoreClass(score);
+  const colorMap = { high: '#2d6a3a', medium: '#c08552', low: '#8a7c6a' };
+  const color = colorMap[cls] || '#8a7c6a';
+
+  const detailsHTML = prios.slice(0, 3).map((id, idx) => {
+    const c = MUST_HAVES_CATALOG.find(x => x.id === id);
+    if (!c) return '';
+    const weight = PRIORITY_WEIGHTS[idx];
+    const matches = c.match(home);
+    const earned = matches ? weight : 0;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:${matches ? '#e8f0e4' : '#f5e8e4'};border-radius:6px;margin-bottom:6px;font-size:13px">
+      <span style="flex:1">${c.icon} ${c.label}</span>
+      <span style="font-weight:700;color:${matches ? '#2d6a3a' : '#a83a30'}">${matches ? '+' : '0/'}${weight}</span>
+    </div>`;
+  }).join('');
+
+  el('modal-content').innerHTML = `
+    <div class="modal-title">Match breakdown</div>
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:42px;font-weight:800;color:${color};line-height:1">${score}%</div>
+      <div style="font-size:11px;color:#8a7c6a;letter-spacing:1px;text-transform:uppercase;font-weight:600">Match score</div>
+      <div style="font-size:12px;color:#1a3a3a;margin-top:6px">${home.address}, ${home.city.replace(', UT','')}</div>
+    </div>
+    ${detailsHTML}
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button onclick="lodgeApp.closeModal()" style="flex:1;padding:11px;background:#1a3a3a;color:#d4a574;border:none;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Got it</button>
+    </div>`;
+  el('modal').classList.add('active');
 }
 
 function openLiked(id) {
@@ -1261,7 +1689,6 @@ function openNote() {
 
 function setScore(id, n) { state.scores[id] = n; document.querySelectorAll('.score-star').forEach((s, i) => s.classList.toggle('active', i < n)); save(); }
 function toggleRoom(id, r) { state.rooms[id] = state.rooms[id] || []; const i = state.rooms[id].indexOf(r); if (i >= 0) state.rooms[id].splice(i, 1); else state.rooms[id].push(r); openLiked(id); save(); }
-function toggleMust(item) { state.mustHaves[item] = !state.mustHaves[item]; renderChecklist(); save(); }
 function saveLikedDetails(id) { state.notes[id] = el('note-input').value; save(); syncToSheet('UPDATE', id); closeModal(); renderReview(); updateCounts(); }
 function saveQuickNote(id) { state.notes[id] = el('note-input').value; save(); syncToSheet('NOTE', id); closeModal(); }
 function toggleCompare(id) {
@@ -1692,7 +2119,7 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 
 el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, toggleMust, saveLikedDetails, saveQuickNote, toggleCompare, clearCompare, renderComparePicker, renderCompareResults, quickCompareLast2, saveScenario, loadScenario, deleteScenario, reorderCompare, cyclePhoto, goToCompare, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
+const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, saveLikedDetails, saveQuickNote, toggleCompare, clearCompare, renderComparePicker, renderCompareResults, quickCompareLast2, saveScenario, loadScenario, deleteScenario, reorderCompare, cyclePhoto, goToCompare, openMHSelector, toggleMHPriority, movePriority, removePriority, dismissInsight, showMatchDetail, setReviewSort, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
 window.lodgeApp = lodgeApp;
 
 // Welcome screen logic - shown when there's no client code in the URL
