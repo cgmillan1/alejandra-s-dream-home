@@ -222,6 +222,30 @@
   .review-sort-btn.active { background: #1a3a3a; color: #d4a574; border-color: #1a3a3a; font-weight: 600; }
   .review-sort-btn:active { transform: scale(0.98); }
 
+  /* Updated home badges and banners */
+  .updated-badge { position: absolute; top: 6px; left: 6px; background: linear-gradient(135deg, #c08552 0%, #d4a574 100%); color: #fff; padding: 4px 8px 4px 6px; border-radius: 12px; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; z-index: 2; display: flex; align-items: center; gap: 3px; box-shadow: 0 2px 6px rgba(192,133,82,0.4); animation: pulse-update 2s ease-in-out infinite; }
+  @keyframes pulse-update { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .updated-badge i { font-size: 10px; }
+
+  /* Update banner in liked detail modal */
+  .update-banner { background: linear-gradient(135deg, #c08552 0%, #d4a574 100%); color: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .update-banner-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .update-banner-header i { font-size: 18px; }
+  .update-banner-title { font-family: var(--font-serif); font-size: 15px; font-weight: 600; flex: 1; }
+  .update-banner-date { font-size: 10px; opacity: 0.85; letter-spacing: 0.5px; }
+  .update-changes { list-style: none; padding: 0; margin: 0; }
+  .update-changes li { font-size: 12px; padding: 4px 0; padding-left: 18px; position: relative; line-height: 1.4; }
+  .update-changes li::before { content: '✓'; position: absolute; left: 0; top: 4px; font-weight: 700; color: #fffdf7; }
+
+  /* Top-level "X homes updated" alert in Reviewed tab */
+  .updates-alert { background: #fffdf7; border: 2px solid #c08552; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .updates-alert:active { transform: scale(0.99); }
+  .updates-alert-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #c08552 0%, #d4a574 100%); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .updates-alert-text { flex: 1; }
+  .updates-alert-title { font-family: var(--font-serif); color: #1a3a3a; font-size: 14px; font-weight: 600; line-height: 1.2; }
+  .updates-alert-sub { font-size: 11px; color: #8a7c6a; margin-top: 2px; }
+  .updates-alert-arrow { color: #c08552; font-size: 18px; }
+
   .modal-backdrop { position: fixed; inset: 0; background: rgba(26, 58, 58, 0.65); z-index: 100; display: none; align-items: flex-end; justify-content: center; padding: 0; }
   @media (min-width: 480px) { .modal-backdrop { align-items: center; padding: 20px; } }
   .modal-backdrop.active { display: flex; }
@@ -591,11 +615,12 @@
 const HOMES = [
   {
     id: 1, address: '1475 W Bright Eyes Ln', city: 'Saratoga Springs, UT',
-    construction: 'new', price: 454900, beds: 3, baths: 2.5, sqft: 1663, lot: 'Townhome',
-    taxRate: 0.0065, hoa: 65,
-    features: ['Lennar Residence E', 'Move-in ready', 'Open concept', 'White shaker kitchen'],
+    construction: 'new', price: 449900, beds: 3, baths: 2.5, sqft: 1663, lot: 'Townhome',
+    taxRate: 0.0065, hoa: 65, specialRate: 1.99, rateNote: 'Year 1: 1.99% / Year 2: 2.99% / Years 3-7: 3.99% (with $50K down · 5.866% APR)',
+    features: ['🔥 1.99% Year 1 rate', 'Tiered 7-year buydown', 'Lennar Residence E', 'Move-in ready', 'Open concept'],
     imgs: ['images/house1-1.png', 'images/house1-2.png', 'images/house1-3.png'],
-    url: 'https://www.lennar.com/new-homes/utah/salt-lake-city/saratoga-springs/the-valley-at-wildflower/canyons/residence-e/69962511501/walkthrough'
+    url: 'https://www.lennar.com/new-homes/utah/salt-lake-city/saratoga-springs/the-valley-at-wildflower/canyons/residence-e/69962511501/walkthrough',
+    updated: { version: 'v2', date: 'May 2026', changes: ['Price dropped from $454,900 to $449,900 (-$5,000)', 'New rate incentive: 1.99% Year 1 → 3.99% Years 3-7', 'Requires $50K down payment'] }
   },
   {
     id: 2, address: '2070 E Swallow Dr', city: 'Eagle Mountain, UT',
@@ -655,19 +680,21 @@ const HOMES = [
   },
   {
     id: 9, address: '1568 W Banner Dr', city: 'Saratoga Springs, UT',
-    construction: 'new', price: 491900, beds: 4, baths: 2.5, sqft: 1618, lot: 'Townhome',
-    taxRate: 0.0065, hoa: 110,
-    features: ['EdgeHomes Ridgehorne', 'Navy blue island', 'Pendant lights', 'Built Feb 2026'],
+    construction: 'new', price: 491900, beds: 4, baths: 3, sqft: 2478, lot: 'Townhome',
+    taxRate: 0.0065, hoa: 110, specialRate: 1.99, rateNote: 'Year 1: 1.99% / Year 2: 2.99% / Year 3+: 3.99% (Principal & Interest)',
+    features: ['🔥 1.99% Year 1 rate', 'Tiered buydown', 'EdgeHomes Ridgehorne', 'Navy blue island', 'Built Feb 2026'],
     imgs: ['images/house9-1.png', 'images/house9-2.png', 'images/house9-3.png'],
-    url: 'https://www.edgehomes.com/quick_move_ins/ridgehorne-801/'
+    url: 'https://www.edgehomes.com/quick_move_ins/ridgehorne-801/',
+    updated: { version: 'v2', date: 'May 2026', changes: ['New floor plan: 4 bed / 3 bath / 2,478 sqft (bigger than before!)', 'New rate incentive: 1.99% Year 1 → 3.99% Year 3+', 'Updated listing details'] }
   },
   {
     id: 10, address: '778 N Danverse Dr', city: 'Saratoga Springs, UT',
-    construction: 'new', price: 505900, beds: 4, baths: 2.5, sqft: 1647, lot: 'Townhome',
-    taxRate: 0.0065, hoa: 110,
-    features: ['EdgeHomes Highridge', 'Black hardware', 'Modern minimalist', 'Built March 2026'],
+    construction: 'new', price: 505900, beds: 4, baths: 3, sqft: 2592, lot: 'Townhome',
+    taxRate: 0.0065, hoa: 110, specialRate: 1.99, rateNote: 'Year 1: 1.99% / Year 2: 2.99% / Year 3+: 3.99% (Principal & Interest)',
+    features: ['🔥 1.99% Year 1 rate', 'Tiered buydown', 'EdgeHomes Highridge', 'Black hardware', 'Built March 2026'],
     imgs: ['images/house10-1.png', 'images/house10-2.png', 'images/house10-3.png'],
-    url: 'https://www.edgehomes.com/quick_move_ins/highridge-677/'
+    url: 'https://www.edgehomes.com/quick_move_ins/highridge-677/',
+    updated: { version: 'v2', date: 'May 2026', changes: ['New floor plan: 4 bed / 3 bath / 2,592 sqft (bigger than before!)', 'New rate incentive: 1.99% Year 1 → 3.99% Year 3+', 'Updated listing details'] }
   },
   {
     id: 11, address: '1551 W Banner Dr', city: 'Saratoga Springs, UT',
@@ -914,7 +941,7 @@ function showSyncStatus(status) {
   }
 }
 
-const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, priorities: [], dismissedInsights: {}, reviewSort: 'recent', compareIds: [], scenarios: {}, filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, compareImgIdx: {}, lastAction: null };
+const state = { liked: [], disliked: [], notes: {}, scores: {}, rooms: {}, mustHaves: {}, priorities: [], dismissedInsights: {}, seenUpdates: {}, reviewSort: 'recent', compareIds: [], scenarios: {}, filter: 'all', reviewView: 'loved', viewedIds: [], galleryIdx: {}, compareImgIdx: {}, lastAction: null };
 
 // Firebase load/save - syncs across all devices using client code
 let saveTimeout = null;
@@ -984,6 +1011,7 @@ function save() {
       mustHaves: state.mustHaves || {},
       priorities: state.priorities || [],
       dismissedInsights: state.dismissedInsights || {},
+      seenUpdates: state.seenUpdates || {},
       reviewSort: state.reviewSort || 'recent',
       compareIds: state.compareIds || [],
       scenarios: state.scenarios || {},
@@ -1210,6 +1238,26 @@ function renderReview() {
   const grid = el('liked-grid');
   let ids = state.reviewView === 'loved' ? [...state.liked] : [...state.disliked];
 
+  // Check if any LOVED home has an unseen update
+  const unseenUpdates = (state.reviewView === 'loved')
+    ? state.liked.map(id => HOMES.find(h => h.id === id)).filter(h => h && h.updated && !(state.seenUpdates && state.seenUpdates[h.id] === h.updated.version))
+    : [];
+
+  let updatesAlertHTML = '';
+  if (unseenUpdates.length > 0) {
+    const count = unseenUpdates.length;
+    updatesAlertHTML = `<div style="grid-column:1/-1">
+      <div class="updates-alert" onclick="lodgeApp.openFirstUnseenUpdate()">
+        <div class="updates-alert-icon"><i class="ti ti-sparkles"></i></div>
+        <div class="updates-alert-text">
+          <div class="updates-alert-title">${count} loved home${count === 1 ? ' has' : 's have'} new updates</div>
+          <div class="updates-alert-sub">Tap to see what changed (price drops, new rate incentives, etc.)</div>
+        </div>
+        <div class="updates-alert-arrow"><i class="ti ti-chevron-right"></i></div>
+      </div>
+    </div>`;
+  }
+
   // Show sort toggle only on loved view + if user has priorities + 2+ loved
   const showSort = state.reviewView === 'loved' && (state.priorities || []).length > 0 && ids.length >= 2;
   const sortMode = state.reviewSort || 'recent';
@@ -1235,7 +1283,7 @@ function renderReview() {
   if (ids.length === 0) {
     const msg = state.reviewView === 'loved' ? 'No loves yet' : 'No passes yet';
     const sub = state.reviewView === 'loved' ? 'Swipe right on homes you love' : 'Homes you swipe left on appear here';
-    grid.innerHTML = sortHTML + `<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-${state.reviewView === 'loved' ? 'heart' : 'x'}"></i><h3>${msg}</h3><p>${sub}</p></div>`;
+    grid.innerHTML = updatesAlertHTML + sortHTML + `<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-${state.reviewView === 'loved' ? 'heart' : 'x'}"></i><h3>${msg}</h3><p>${sub}</p></div>`;
     return;
   }
 
@@ -1247,6 +1295,12 @@ function renderReview() {
     const cls = state.reviewView === 'loved' ? 'loved' : 'passed';
     const badge = h.construction === 'new' ? '<div class="liked-badge new">New</div>' : '<div class="liked-badge resale">Resale</div>';
     const reconsiderBtn = state.reviewView === 'passed' ? `<button class="reconsider-btn" onclick="event.stopPropagation();lodgeApp.reconsider(${id})"><i class="ti ti-rotate"></i> Reconsider</button>` : '';
+
+    // Updated badge (only on loved with unseen update)
+    let updatedBadgeHTML = '';
+    if (state.reviewView === 'loved' && h.updated && !(state.seenUpdates && state.seenUpdates[h.id] === h.updated.version)) {
+      updatedBadgeHTML = `<div class="updated-badge"><i class="ti ti-sparkles"></i> Updated</div>`;
+    }
 
     // Show match score badge if priorities set and on loved view
     let matchBadge = '';
@@ -1260,7 +1314,7 @@ function renderReview() {
     }
 
     return `<div class="liked-card ${cls} ${sel}" onclick="lodgeApp.openLiked(${id})">
-      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}');position:relative">${badge}${matchBadge}</div>
+      <div class="liked-thumb" style="background-image:url('${h.imgs[0]}');position:relative">${badge}${updatedBadgeHTML}${matchBadge}</div>
       <div class="liked-price">${fmtFull(h.price)}</div>
       <div class="liked-addr">${h.address}</div>
       <div class="liked-addr" style="font-size:10px">${h.city}</div>
@@ -1270,7 +1324,12 @@ function renderReview() {
   }).join('');
 
   // Inject sort BEFORE the grid items
-  grid.innerHTML = (showSort ? `<div style="grid-column:1/-1">${sortHTML}</div>` : '') + cardsHTML;
+  grid.innerHTML = updatesAlertHTML + (showSort ? `<div style="grid-column:1/-1">${sortHTML}</div>` : '') + cardsHTML;
+}
+
+function openFirstUnseenUpdate() {
+  const unseen = state.liked.map(id => HOMES.find(h => h.id === id)).filter(h => h && h.updated && !(state.seenUpdates && state.seenUpdates[h.id] === h.updated.version));
+  if (unseen.length > 0) openLiked(unseen[0].id);
 }
 
 function setReviewSort(mode) {
@@ -1589,9 +1648,31 @@ function openLiked(id) {
   const rooms = state.rooms[id] || [];
   const inCompare = state.compareIds.includes(id);
   const isPassed = state.disliked.includes(id);
+
+  // Update banner - show if home has unseen update
+  let updateBannerHTML = '';
+  const hasUnseenUpdate = h.updated && !(state.seenUpdates && state.seenUpdates[h.id] === h.updated.version);
+  if (hasUnseenUpdate) {
+    updateBannerHTML = `<div class="update-banner">
+      <div class="update-banner-header">
+        <i class="ti ti-sparkles"></i>
+        <span class="update-banner-title">What's new</span>
+        <span class="update-banner-date">${h.updated.date}</span>
+      </div>
+      <ul class="update-changes">
+        ${h.updated.changes.map(c => `<li>${c}</li>`).join('')}
+      </ul>
+    </div>`;
+    // Mark as seen
+    if (!state.seenUpdates) state.seenUpdates = {};
+    state.seenUpdates[h.id] = h.updated.version;
+    save();
+  }
+
   el('modal-content').innerHTML = `
     <div class="modal-title">${h.address}</div>
     <div style="font-size:11px;color:#8a7c6a;margin-bottom:12px">${h.city} · ${fmtFull(h.price)} · ${h.construction === 'new' ? 'New Construction' : 'Resale'}</div>
+    ${updateBannerHTML}
     ${!isPassed ? `<div style="font-size:12px;color:#4a5a4a;margin-bottom:6px">Your score (1-10)</div>
     <div class="score-row">${[1,2,3,4,5,6,7,8,9,10].map(n => `<span class="score-star ${n<=score?'active':''}" onclick="lodgeApp.setScore(${id},${n})">★</span>`).join('')}</div>
     <div style="font-size:12px;color:#4a5a4a;margin-bottom:6px">Favorite rooms</div>
@@ -2086,7 +2167,7 @@ function exportPDF() {
   win.document.close();
 }
 
-function closeModal() { el('modal').classList.remove('active'); }
+function closeModal() { el('modal').classList.remove('active'); renderReview(); }
 
 function reset() {
   const firstName = (CLIENT_NAMES[CLIENT_CODE] || 'this client').split(' ')[0];
@@ -2119,7 +2200,7 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 
 el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
-const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, saveLikedDetails, saveQuickNote, toggleCompare, clearCompare, renderComparePicker, renderCompareResults, quickCompareLast2, saveScenario, loadScenario, deleteScenario, reorderCompare, cyclePhoto, goToCompare, openMHSelector, toggleMHPriority, movePriority, removePriority, dismissInsight, showMatchDetail, setReviewSort, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
+const lodgeApp = { swipe, openNote, openLiked, setScore, toggleRoom, saveLikedDetails, saveQuickNote, toggleCompare, clearCompare, renderComparePicker, renderCompareResults, quickCompareLast2, saveScenario, loadScenario, deleteScenario, reorderCompare, cyclePhoto, goToCompare, openMHSelector, toggleMHPriority, movePriority, removePriority, dismissInsight, showMatchDetail, setReviewSort, openFirstUnseenUpdate, closeModal, reset, openMortgage, updateMort, galleryNav, exportPDF, setReviewView, reconsider, undo };
 window.lodgeApp = lodgeApp;
 
 // Welcome screen logic - shown when there's no client code in the URL
