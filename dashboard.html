@@ -315,8 +315,35 @@ function renderDashboard() {
       return '<div class="home-row passed"><div class="home-info"><div class="home-addr">' + escapeHtml(h.address) + '</div><div class="home-meta">' + escapeHtml(h.city) + ' · $' + h.price.toLocaleString() + ' · ' + h.type + '</div>' + (note ? '<div class="home-note">' + escapeHtml(note) + '</div>' : '') + '</div></div>';
     }).join('') : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">None passed</div>';
 
-    const mustHaves = Object.keys(data.mustHaves || {}).filter(k => data.mustHaves[k]);
-    const mustHavesHtml = mustHaves.length ? '<div class="musts-tags">' + mustHaves.map(m => '<span class="must-tag">✓ ' + escapeHtml(m) + '</span>').join('') + '</div>' : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">None marked</div>';
+    // Show priorities (new ranked system) with fallback to old mustHaves
+    const priorities = data.priorities || [];
+    const MH_LABELS = {
+      'new_only': '🆕 New construction',
+      'basement': '⬇️ Has basement',
+      'mountain': '🏔️ Mountain views',
+      'singlefam': '🏠 Single-family',
+      'rate_incentive': '🔥 Rate incentive',
+      'low_hoa': '💵 Low HOA',
+      'under_450k': '💰 Under $450k',
+      'under_500k': '💰 Under $500k',
+      'beds_4plus': '🛏️ 4+ bedrooms',
+      'baths_3plus': '🚿 3+ bathrooms',
+      'sqft_2200': '📐 2,200+ sqft',
+      'saratoga': '🏙️ Saratoga Springs only',
+      'no_eagle': '🚫 Not Eagle Mountain',
+      'garage_2': '🚗 2-car garage',
+      'modern': '✨ Recently built'
+    };
+    let mustHavesHtml;
+    if (priorities.length > 0) {
+      const weights = [50, 30, 20];
+      mustHavesHtml = '<div class="musts-tags">' + priorities.slice(0, 3).map((id, idx) =>
+        '<span class="must-tag" style="background:' + (idx === 0 ? '#c08552' : (idx === 1 ? '#d4a574' : '#e8d8c0')) + ';color:' + (idx <= 1 ? '#fff' : '#1a3a3a') + ';font-weight:600">#' + (idx + 1) + ' (' + weights[idx] + '%) ' + escapeHtml(MH_LABELS[id] || id) + '</span>'
+      ).join('') + '</div>';
+    } else {
+      const mustHaves = Object.keys(data.mustHaves || {}).filter(k => data.mustHaves[k]);
+      mustHavesHtml = mustHaves.length ? '<div class="musts-tags">' + mustHaves.map(m => '<span class="must-tag">✓ ' + escapeHtml(m) + '</span>').join('') + '</div>' : '<div style="font-size:12px;color:#8a7c6a;font-style:italic">Hasn\'t set priorities yet</div>';
+    }
 
     return '<div class="client-card" data-code="' + code + '" onclick="toggleExpand(\'' + code + '\')">' +
       '<div class="client-row">' +
@@ -332,7 +359,7 @@ function renderDashboard() {
         '</div>' +
       '</div>' +
       '<div class="client-detail">' +
-        '<div class="detail-section"><div class="detail-title">Must-Haves</div>' + mustHavesHtml + '</div>' +
+        '<div class="detail-section"><div class="detail-title">Top Priorities</div>' + mustHavesHtml + '</div>' +
         '<div class="detail-section"><div class="detail-title"><i class="ti ti-heart"></i> Loved (' + liked.length + ')</div><div class="home-list">' + lovedHtml + '</div></div>' +
         '<div class="detail-section"><div class="detail-title"><i class="ti ti-x"></i> Passed (' + disliked.length + ')</div><div class="home-list">' + passedHtml + '</div></div>' +
         '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">' +
