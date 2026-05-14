@@ -3163,19 +3163,122 @@ let tourLegLabels = [];
 let tourPolyline = null;
 let tourMapInitialized = false;
 
+// Firebase sync for Tour tab
+// Writes per-stop state to clients/{CODE}/tour/{stopId} so it doesn't touch
+// the existing swipe/notes state. Live-syncs across devices.
+let tourFirebaseRef = null;
+let tourLiveCache = {};  // Latest from Firebase, keyed by stopId
+let tourLiveListenerWired = false;
+let tourLocalWriteInFlight = {};  // stopId -> true while we wait for our own write to round-trip
+
 function tourLoadState(stopId) {
+  // Prefer the freshest data: live Firebase cache > localStorage fallback
+  if (tourLiveCache[stopId]) {
+    return { rating: 0, love: false, notes: '', viewed: false, ...tourLiveCache[stopId] };
+  }
   try {
     const raw = localStorage.getItem(TOUR_STORAGE_KEY + stopId);
     if (raw) return { rating: 0, love: false, notes: '', viewed: false, ...JSON.parse(raw) };
   } catch (e) {}
   return { rating: 0, love: false, notes: '', viewed: false };
 }
+
 function tourSaveState(stopId, st) {
-  try {
-    localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(st));
-    tourToast();
-  } catch (e) { console.error(e); }
+  // 1. Save locally for instant feedback + offline fallback
+  try { localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(st)); } catch (e) {}
+  tourLiveCache[stopId] = st;
+  // 2. Save to Firebase if we have a client code and Firebase is initialized
+  if (typeof CLIENT_CODE !== 'undefined' && CLIENT_CODE && typeof db !== 'undefined' && db) {
+    try {
+      tourLocalWriteInFlight[stopId] = true;
+      db.ref('clients/' + CLIENT_CODE + '/tour/' + stopId).set({
+        ...st,
+        updatedAt: firebase.database.ServerValue.TIMESTAMP
+      }).then(() => {
+        tourLocalWriteInFlight[stopId] = false;
+        showSyncStatus('synced');
+      }).catch(err => {
+        console.log('Tour Firebase save failed:', err);
+        tourLocalWriteInFlight[stopId] = false;
+      });
+      showSyncStatus('syncing');
+    } catch (e) { console.log('Tour Firebase save error:', e); }
+  }
+  tourToast();
 }
+
+// Set up the live listener once Firebase is ready
+function setupTourFirebaseSync() {
+  if (tourLiveListenerWired) return;
+  if (typeof CLIENT_CODE === 'undefined' || !CLIENT_CODE) return;
+  if (typeof db === 'undefined' || !db) return;
+  tourLiveListenerWired = true;
+
+  const ref = db.ref('clients/' + CLIENT_CODE + '/tour');
+
+  // Initial load: hydrate cache + localStorage, then re-render
+  ref.once('value').then(snap => {
+    const data = snap.val();
+    if (data && typeof data === 'object') {
+      Object.keys(data).forEach(stopId => {
+        const remote = data[stopId];
+        if (remote && typeof remote === 'object') {
+          tourLiveCache[stopId] = remote;
+          // Mirror to localStorage so offline reload works
+          try { localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(remote)); } catch (e) {}
+        }
+      });
+      // Always refresh the tab badge so the count is accurate
+      updateTourTabBadge();
+      // Re-render if the tour tab is already open
+      if (el('view-tour') && el('view-tour').classList.contains('active')) {
+        renderTourStops();
+        renderTourMap();
+      }
+    }
+  }).catch(err => console.log('Tour Firebase initial load failed:', err));
+
+  // Per-stop change listener: when any stop's data changes (including from another device),
+  // update the cache and re-render
+  ref.on('child_changed', snap => {
+    const stopId = snap.key;
+    const data = snap.val();
+    if (!data) return;
+    // If we're the source of this write, the cache is already current
+    if (tourLocalWriteInFlight[stopId]) return;
+    tourLiveCache[stopId] = data;
+    try { localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(data)); } catch (e) {}
+    updateTourTabBadge();
+    if (el('view-tour') && el('view-tour').classList.contains('active')) {
+      renderTourStops();
+      renderTourMap();
+    }
+  });
+  ref.on('child_added', snap => {
+    const stopId = snap.key;
+    const data = snap.val();
+    if (!data) return;
+    if (tourLocalWriteInFlight[stopId]) return;
+    tourLiveCache[stopId] = data;
+    try { localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(data)); } catch (e) {}
+    updateTourTabBadge();
+    if (el('view-tour') && el('view-tour').classList.contains('active')) {
+      renderTourStops();
+      renderTourMap();
+    }
+  });
+}
+
+// Helper: refresh the Tour tab badge ("3/9" etc) using current cache
+function updateTourTabBadge() {
+  const viewed = TOUR_STOPS.filter(s => {
+    const st = tourLoadState(s.id);
+    return st.viewed;
+  }).length;
+  const tabCount = el('count-tour');
+  if (tabCount) tabCount.textContent = viewed === 0 ? '9' : `${viewed}/9`;
+}
+
 let tourToastTimer;
 function tourToast() {
   let t = el('tour-save-toast');
@@ -3183,7 +3286,7 @@ function tourToast() {
     t = document.createElement('div');
     t.id = 'tour-save-toast';
     t.className = 'tour-save-toast';
-    t.innerHTML = '<i class="ti ti-check"></i>Saved';
+    t.innerHTML = '<i class="ti ti-cloud-check"></i>Saved';
     document.body.appendChild(t);
   }
   t.classList.add('show');
@@ -3199,6 +3302,7 @@ function tourListingUrl(s) {
 function tourListingLabel(s) { return s.id === 'P9' ? 'Lennar' : 'Zillow'; }
 
 function initTourTab() {
+  setupTourFirebaseSync();
   renderTourStops();
   // give the tab time to become visible before initializing Leaflet
   // (Leaflet needs the container to have measurable dimensions)
@@ -3541,6 +3645,9 @@ if (!CLIENT_CODE || !CLIENT_NAMES[CLIENT_CODE]) {
   applySavedTheme();
   personalizeLoadingScreen();
   load();
+  // Start syncing tour data in the background so the tab badge updates
+  // even before the user opens the Tour tab
+  setTimeout(() => setupTourFirebaseSync(), 200);
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === state.filter));
   document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.reviewView));
   renderStack();
