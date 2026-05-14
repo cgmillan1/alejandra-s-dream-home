@@ -22,6 +22,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 <style>
@@ -585,6 +587,635 @@
   .mort-mini { font-size: 10px; }
   .mort-mini-lbl { color: #8a7c6a; }
   .mort-mini-val { color: #1a3a3a; font-weight: 500; font-size: 13px; }
+
+  /* ============ TOUR TAB ============ */
+  .tour-hero {
+    background: linear-gradient(135deg, #1a3a3a 0%, #2d4a3a 100%);
+    color: #faf7f0;
+    padding: 22px 20px 24px;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tour-hero::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(212,165,116,.25), transparent 70%);
+    pointer-events: none;
+  }
+  .tour-hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #d4a574;
+    margin-bottom: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tour-hero-title {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    font-weight: 500;
+    margin: 0 0 6px;
+    letter-spacing: -.01em;
+    line-height: 1.1;
+  }
+  @media (min-width: 480px) { .tour-hero-title { font-size: 30px; } }
+  .tour-hero-sub {
+    font-size: 13px;
+    margin: 0;
+    opacity: .85;
+    line-height: 1.45;
+    max-width: 38ch;
+  }
+
+  .tour-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .tour-stat {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-radius: var(--border-radius-md);
+    padding: 12px 4px;
+    text-align: center;
+  }
+  .tour-stat-num {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: #1a3a3a;
+    line-height: 1;
+  }
+  @media (min-width: 480px) { .tour-stat-num { font-size: 24px; } }
+  .tour-stat-lbl {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .tour-progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-radius: var(--border-radius-md);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .tour-progress-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tour-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: #ebe2d1;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .tour-progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, #2d6a3a, #c08552);
+    width: 0;
+    border-radius: 999px;
+    transition: width .5s var(--ease-bounce);
+  }
+  .tour-progress-count {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a3a3a;
+    white-space: nowrap;
+  }
+  .tour-reset {
+    background: transparent;
+    border: 1px solid rgba(45, 62, 47, 0.2);
+    color: #5a6a5a;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .tour-reset:hover { color: #c08552; border-color: #c08552; }
+
+  .tour-map-wrap {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-radius: var(--border-radius-md);
+    padding: 8px;
+    margin-bottom: 14px;
+  }
+  #tour-map {
+    width: 100%;
+    height: 360px;
+    border-radius: 6px;
+    background: #ebe2d1;
+  }
+  @media (min-width: 720px) { #tour-map { height: 440px; } }
+  .leaflet-tile-pane { filter: sepia(.18) saturate(.85) hue-rotate(-10deg) brightness(1.02); }
+  .leaflet-container { font-family: var(--font-sans); background: #ebe2d1 !important; }
+  .leaflet-popup-content-wrapper {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.15);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(45, 62, 47, .15);
+  }
+  .leaflet-popup-content {
+    margin: 10px 14px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #2d3e2f;
+  }
+  .leaflet-popup-content b {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a3a3a;
+  }
+  .leaflet-popup-tip { background: #fffdf7; }
+  .leaflet-control-attribution {
+    background: rgba(255,253,247,.85) !important;
+    font-size: 9px !important;
+    color: #8a7c6a !important;
+  }
+  .leaflet-control-zoom a {
+    background: #fffdf7 !important;
+    color: #1a3a3a !important;
+    border-color: rgba(45, 62, 47, 0.2) !important;
+  }
+
+  .tour-pin {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fffdf7;
+    border: 2px solid #1a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a3a3a;
+    box-shadow: 0 3px 8px rgba(26, 58, 58, .35);
+    transition: transform .2s;
+  }
+  .tour-pin:hover { transform: scale(1.12); }
+  .tour-pin.love { background: #c08552; border-color: #8a5a30; color: #fffdf7; }
+  .tour-pin.viewed { background: #2d6a3a; border-color: #1f4d2a; color: #fffdf7; }
+
+  .tour-leg-label {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.35);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #1a3a3a;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(26, 58, 58, .15);
+    pointer-events: none;
+    font-family: var(--font-sans);
+  }
+
+  .tour-map-legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    padding-top: 10px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(45, 62, 47, 0.08);
+    flex-wrap: wrap;
+  }
+  .tour-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #5a6a5a;
+    font-weight: 500;
+  }
+  .tour-legend-dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    border: 1.5px solid #1a3a3a;
+    background: #fffdf7;
+    flex-shrink: 0;
+  }
+  .tour-legend-dot.love { background: #c08552; border-color: #8a5a30; }
+  .tour-legend-dot.viewed { background: #2d6a3a; border-color: #1f4d2a; }
+
+  /* ===== Stop cards ===== */
+  .tour-stops { display: flex; flex-direction: column; gap: 0; }
+  .tour-stop {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-radius: var(--border-radius-md);
+    padding: 16px;
+    position: relative;
+    margin-bottom: 4px;
+    transition: opacity .25s, border-color .2s;
+  }
+  .tour-stop.is-viewed { opacity: .62; }
+  .tour-stop.is-viewed .tour-stop-name {
+    text-decoration: line-through;
+    text-decoration-color: #8a7c6a;
+  }
+  .tour-stop.is-current {
+    border-color: #c08552;
+    box-shadow: 0 0 0 3px rgba(192, 133, 82, .15);
+  }
+  .tour-stop-bridge {
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    padding: 6px 0;
+    font-weight: 500;
+  }
+  .tour-stop-bridge i { vertical-align: middle; margin-right: 4px; color: #c08552; }
+
+  .tour-stop-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .tour-stop-marker {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f0ebe0;
+    border: 2px solid #1a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a3a3a;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .tour-stop.is-love .tour-stop-marker {
+    background: #c08552;
+    border-color: #8a5a30;
+    color: #fffdf7;
+  }
+  .tour-stop.is-viewed .tour-stop-marker {
+    background: #2d6a3a;
+    border-color: #1f4d2a;
+    color: #fffdf7;
+  }
+  .tour-stop.is-current .tour-stop-marker {
+    animation: tour-pulse 2s ease-in-out infinite;
+  }
+  @keyframes tour-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 133, 82, .35); }
+    50% { box-shadow: 0 0 0 6px rgba(192, 133, 82, 0); }
+  }
+  .tour-stop-titles { flex: 1; min-width: 0; }
+  .tour-stop-name {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a3a3a;
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+  .tour-stop-now {
+    display: none;
+    margin-left: 6px;
+    font-family: var(--font-sans);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c08552;
+    background: rgba(192, 133, 82, .15);
+    padding: 2px 7px;
+    border-radius: 3px;
+    vertical-align: 2px;
+    font-weight: 600;
+  }
+  .tour-stop.is-current .tour-stop-now { display: inline-block; }
+  .tour-stop-time {
+    font-size: 12px;
+    color: #5a6a5a;
+    font-weight: 500;
+  }
+  .tour-stop-time i { vertical-align: -1px; margin-right: 3px; color: #c08552; }
+
+  .tour-stop-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #5a6a5a;
+  }
+  .tour-stop-price {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 16px;
+    color: #1a3a3a;
+  }
+  .tour-stop-tag {
+    font-size: 9px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+  .tour-stop-tag.new { color: #c08552; border-color: rgba(192, 133, 82, .4); background: rgba(192, 133, 82, .08); }
+  .tour-stop-tag.resale { color: #5a6a5a; border-color: rgba(45, 62, 47, .2); background: #f0ebe0; }
+
+  .tour-stop-flag {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: #c08552;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tour-stop-flag i { font-style: normal; }
+
+  .tour-stop-note {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: #5a6a5a;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  .tour-realtor {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #f7f2e6;
+    border-left: 3px solid #d4a574;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .tour-realtor-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1a3a3a;
+    color: #faf7f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .tour-realtor-info { flex: 1; min-width: 0; }
+  .tour-realtor-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    font-weight: 600;
+  }
+  .tour-realtor-name {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    color: #1a3a3a;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .tour-realtor-phone {
+    font-size: 12px;
+    color: #5a6a5a;
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .tour-realtor-phone:hover { color: #c08552; }
+  .tour-realtor-phone.tbd { color: #8a7c6a; font-style: italic; }
+  .tour-call-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    background: #2d6a3a;
+    color: #fffdf7;
+    border: 0;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .tour-call-btn:hover { background: #1f4d2a; transform: translateY(-1px); }
+  .tour-call-btn.lookup { background: #1a3a3a; }
+  .tour-call-btn.disabled {
+    background: #ebe2d1;
+    color: #8a7c6a;
+    pointer-events: none;
+  }
+
+  .tour-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .tour-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    border: 1px solid #1a3a3a;
+    background: transparent;
+    color: #1a3a3a;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    transition: all .2s;
+  }
+  .tour-btn:hover { background: #1a3a3a; color: #faf7f0; }
+  .tour-btn.primary { background: #1a3a3a; color: #faf7f0; }
+  .tour-btn.primary:hover { background: #c08552; border-color: #c08552; }
+
+  .tour-feedback {
+    background: #f7f2e6;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .tour-feedback-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .tour-feedback-row:last-of-type { margin-bottom: 0; }
+  .tour-feedback-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    font-weight: 600;
+  }
+  .tour-stars { display: inline-flex; gap: 3px; }
+  .tour-star {
+    width: 22px; height: 22px;
+    cursor: pointer;
+    color: rgba(45, 62, 47, 0.2);
+    font-size: 18px;
+    line-height: 1;
+    user-select: none;
+    transition: transform .15s, color .15s;
+  }
+  .tour-star:hover { transform: scale(1.15); }
+  .tour-star.filled { color: #d4a574; }
+  .tour-heart-btn {
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(45, 62, 47, 0.2);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: #5a6a5a;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+    transition: all .2s;
+  }
+  .tour-heart-btn:hover { border-color: #a83a30; color: #a83a30; }
+  .tour-heart-btn.active {
+    background: #a83a30;
+    border-color: #a83a30;
+    color: #fffdf7;
+  }
+  .tour-notes {
+    width: 100%;
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.15);
+    border-radius: 4px;
+    padding: 8px 10px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: #2d3e2f;
+    resize: none;
+    min-height: 36px;
+    line-height: 1.4;
+  }
+  .tour-notes:focus { outline: none; border-color: #c08552; box-shadow: 0 0 0 2px rgba(192, 133, 82, .15); }
+
+  .tour-mark-row {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .tour-mark-btn {
+    background: transparent;
+    border: 1px solid rgba(45, 62, 47, 0.2);
+    color: #5a6a5a;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+  }
+  .tour-mark-btn:hover { background: #2d6a3a; border-color: #2d6a3a; color: #fffdf7; }
+  .tour-stop.is-viewed .tour-mark-btn {
+    background: #2d6a3a;
+    border-color: #2d6a3a;
+    color: #fffdf7;
+  }
+
+  .tour-end-card {
+    background: #f7f2e6;
+    border: 1px dashed rgba(45, 62, 47, 0.25);
+    border-radius: var(--border-radius-md);
+    padding: 14px 16px;
+    margin-top: 14px;
+    text-align: left;
+    font-size: 13px;
+    color: #5a6a5a;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.45;
+  }
+  .tour-end-card i { font-size: 22px; color: #2d6a3a; flex-shrink: 0; margin-top: 2px; }
+  .tour-end-card strong { color: #1a3a3a; font-family: var(--font-serif); }
+
+  .tour-save-toast {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a3a3a;
+    color: #faf7f0;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(26, 58, 58, .35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 1000;
+  }
+  .tour-save-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .tour-save-toast i { margin-right: 4px; }
 </style>
 </head>
 <body>
@@ -656,6 +1287,7 @@
     <button class="lodge-tab" data-tab="liked">Reviewed <span class="lodge-tab-count" id="count-reviewed">0</span></button>
     <button class="lodge-tab" data-tab="checklist">Must-Haves</button>
     <button class="lodge-tab" data-tab="compare">Compare</button>
+    <button class="lodge-tab" data-tab="tour">Tour <span class="lodge-tab-count" id="count-tour">9</span></button>
   </div>
 
   <div class="lodge-view active" id="view-discover">
@@ -718,6 +1350,39 @@
     </div>
     <div class="compare-picker" id="compare-picker"></div>
     <div id="compare-area"></div>
+  </div>
+
+  <div class="lodge-view" id="view-tour">
+    <div class="tour-hero">
+      <div class="tour-hero-eyebrow"><i class="ti ti-calendar-event"></i> Saturday Tour · May 16</div>
+      <h2 class="tour-hero-title">Your Saturday in Saratoga</h2>
+      <p class="tour-hero-sub">Nine homes, optimized route, starting at 12:00 PM. Tap any pin or card to jump in.</p>
+    </div>
+    <div class="tour-summary">
+      <div class="tour-stat"><div class="tour-stat-num">9</div><div class="tour-stat-lbl">Homes</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">27</div><div class="tour-stat-lbl">Drive Min</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">5h 37</div><div class="tour-stat-lbl">Total</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">$476K</div><div class="tour-stat-lbl">Avg Price</div></div>
+    </div>
+    <div class="tour-progress-wrap">
+      <span class="tour-progress-label">Tour Progress</span>
+      <div class="tour-progress-bar"><div class="tour-progress-fill" id="tour-progress-fill"></div></div>
+      <span class="tour-progress-count" id="tour-progress-count">0 / 9</span>
+      <button class="tour-reset" id="tour-reset" title="Reset viewed status"><i class="ti ti-refresh"></i></button>
+    </div>
+    <div class="tour-map-wrap">
+      <div id="tour-map"></div>
+      <div class="tour-map-legend">
+        <span class="tour-legend-item"><span class="tour-legend-dot love"></span>Top Pick</span>
+        <span class="tour-legend-item"><span class="tour-legend-dot stop"></span>Stop</span>
+        <span class="tour-legend-item"><span class="tour-legend-dot viewed"></span>Viewed</span>
+      </div>
+    </div>
+    <div class="tour-stops" id="tour-stops"></div>
+    <div class="tour-end-card">
+      <i class="ti ti-flag-check"></i>
+      <div><strong>That's the day.</strong> Notes and ratings save automatically to your phone. Cristian will see them when you share back.</div>
+    </div>
   </div>
 
   <div class="lodge-footer">CMR LUXURY HOME CURATION · <span class="reset-link" onclick="lodgeApp.reset()">Reset session</span></div>
@@ -2445,6 +3110,7 @@ document.querySelectorAll('.lodge-tab').forEach(tab => {
     if (tab.dataset.tab === 'liked') renderReview();
     if (tab.dataset.tab === 'compare') updateCompareBtn();
     if (tab.dataset.tab === 'checklist') renderChecklist();
+    if (tab.dataset.tab === 'tour') initTourTab();
     // N8: Lightweight tab tracking — informs you which features get used
     syncToSheet('TAB_VIEW', null, { tab: tab.dataset.tab });
   });
@@ -2459,6 +3125,340 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
     renderStack();
   });
 });
+
+// ============================================
+// SATURDAY TOUR TAB - May 16, 2026
+// ============================================
+const TOUR_STOPS = [
+  { id:"P7",  name:"859 S Mathilda Dr",          address:"859 S Mathilda Dr, Saratoga Springs, UT 84045",         price:484990, type:"New",    lat:40.346255, lng:-111.938398, arrive:"12:00", depart:"12:30", driveNext:3, distNext:1.76,
+    realtor:{ name:"Listing agent", phone:"801-917-5449" } },
+  { id:"P5",  name:"289 N Eaglewood Dr",         address:"289 N Eaglewood Dr, Saratoga Springs, UT 84045",        price:399900, type:"Resale", lat:40.367390, lng:-111.957171, arrive:"12:38", depart:"13:08", driveNext:3, distNext:0.91,
+    realtor:{ name:"Confirm on Zillow", phone:null, lookup:"https://www.zillow.com/homes/289-N-Eaglewood-Dr-Saratoga-Springs-UT-84045_rb/" } },
+  { id:"P2",  name:"1568 W Banner Dr",           address:"1568 W Banner Dr, Saratoga Springs, UT 84045",          price:491900, type:"New",    lat:40.380212, lng:-111.953648, arrive:"13:16", depart:"13:46", driveNext:3, distNext:1.39,
+    realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
+    note:"Same builder as the next stop. Compare them back-to-back." },
+  { id:"P3",  name:"778 N Danverse Dr",          address:"778 N Danverse Dr, Saratoga Springs, UT 84045",         price:505900, type:"New",    lat:40.389956, lng:-111.930630, arrive:"13:54", depart:"14:24", driveNext:3, distNext:0.63,
+    realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
+    note:"Same builder as the previous stop." },
+  { id:"P10", name:"987 W Coral Charm Wy #203",  address:"987 W Coral Charm Wy #203, Saratoga Springs, UT 84045",  price:469000, type:"Resale", lat:40.393323, lng:-111.941755, arrive:"14:32", depart:"15:02", driveNext:3, distNext:0.67,
+    realtor:{ name:"David T Robinson, Canovo Group", phone:"385-233-3252" },
+    listing:"https://www.zillow.com/homedetails/987-W-Coral-Charm-Way-203-Saratoga-Springs-UT-84045/342743636_zpid/",
+    note:"Townhouse with finished walkout basement (full second kitchen, bedroom, bath, private entry). Lake views from deck." },
+  { id:"P1",  name:"1475 W Bright Eyes Ln",      address:"1475 W Bright Eyes Ln, Saratoga Springs, UT 84045",     price:454900, type:"New",    lat:40.395987, lng:-111.954054, arrive:"15:10", depart:"15:40", driveNext:3, distNext:0.46,
+    realtor:{ name:"Builder sales rep", phone:"801-834-8869" } },
+  { id:"P9",  name:"James Plan · Wildflower",    address:"Lennar at Wildflower, 1832 Blue Flax Dr, Saratoga Springs, UT 84043", price:549900, type:"New", lat:40.397294, lng:-111.962675, arrive:"15:48", depart:"16:18", driveNext:6, distNext:3.35,
+    realtor:{ name:"Lennar sales rep", phone:"801-834-8869" },
+    listing:"https://www.lennar.com/new-homes/utah/salt-lake-city/saratoga-springs/the-valley-at-wildflower/villages/james",
+    note:"Lennar model home. Ask about the James floorplan availability and incentives." },
+  { id:"P6",  name:"227 N Riverside Dr",         address:"227 N Riverside Dr, Saratoga Springs, UT 84045",        price:410000, type:"Resale", lat:40.368706, lng:-111.911203, arrive:"16:29", depart:"16:59", driveNext:3, distNext:0.41,
+    realtor:{ name:"Confirm on Zillow", phone:null, lookup:"https://www.zillow.com/homes/227-N-Riverside-Dr-Saratoga-Springs-UT-84045_rb/" } },
+  { id:"P8",  name:"44 N Provo River Rd",        address:"44 N Provo River Rd, Saratoga Springs, UT 84045",       price:519990, type:"New",    lat:40.363048, lng:-111.908707, arrive:"17:07", depart:"17:37", driveNext:0, distNext:0, flag:"love",
+    realtor:{ name:"Builder sales rep", phone:null },
+    note:'Top pick from your "loved" list, "LOVE THIS ONE." Saved for the end so it\'s the freshest impression.' }
+];
+
+const TOUR_STORAGE_KEY = 'tour:';
+let tourMap = null;
+let tourMarkers = [];
+let tourLegLabels = [];
+let tourPolyline = null;
+let tourMapInitialized = false;
+
+function tourLoadState(stopId) {
+  try {
+    const raw = localStorage.getItem(TOUR_STORAGE_KEY + stopId);
+    if (raw) return { rating: 0, love: false, notes: '', viewed: false, ...JSON.parse(raw) };
+  } catch (e) {}
+  return { rating: 0, love: false, notes: '', viewed: false };
+}
+function tourSaveState(stopId, st) {
+  try {
+    localStorage.setItem(TOUR_STORAGE_KEY + stopId, JSON.stringify(st));
+    tourToast();
+  } catch (e) { console.error(e); }
+}
+let tourToastTimer;
+function tourToast() {
+  let t = el('tour-save-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'tour-save-toast';
+    t.className = 'tour-save-toast';
+    t.innerHTML = '<i class="ti ti-check"></i>Saved';
+    document.body.appendChild(t);
+  }
+  t.classList.add('show');
+  clearTimeout(tourToastTimer);
+  tourToastTimer = setTimeout(() => t.classList.remove('show'), 1400);
+}
+function tourFmtPrice(p) { return '$' + p.toLocaleString(); }
+function tourGoogleMapsUrl(s) { return `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`; }
+function tourListingUrl(s) {
+  if (s.listing) return s.listing;
+  return `https://www.zillow.com/homes/${encodeURIComponent(s.address)}_rb/`;
+}
+function tourListingLabel(s) { return s.id === 'P9' ? 'Lennar' : 'Zillow'; }
+
+function initTourTab() {
+  renderTourStops();
+  // give the tab time to become visible before initializing Leaflet
+  // (Leaflet needs the container to have measurable dimensions)
+  setTimeout(() => renderTourMap(), 60);
+}
+
+function renderTourStops() {
+  const container = el('tour-stops');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const states = TOUR_STOPS.map(s => tourLoadState(s.id));
+  const viewedCount = states.filter(st => st.viewed).length;
+  const currentIdx = states.findIndex(st => !st.viewed);
+
+  TOUR_STOPS.forEach((s, idx) => {
+    const state = states[idx];
+    const isLove = s.flag === 'love';
+    const isViewed = state.viewed;
+    const isCurrent = (idx === currentIdx) && !isViewed && viewedCount > 0;
+
+    const r = s.realtor || {};
+    const phoneClean = r.phone ? r.phone.replace(/[^0-9+]/g, '') : '';
+    const callBtn = r.phone
+      ? `<a class="tour-call-btn" href="tel:${phoneClean}"><i class="ti ti-phone"></i> Call</a>`
+      : (r.lookup
+          ? `<a class="tour-call-btn lookup" href="${r.lookup}" target="_blank" rel="noopener"><i class="ti ti-search"></i> Find on Zillow</a>`
+          : `<span class="tour-call-btn disabled"><i class="ti ti-phone-off"></i> No contact</span>`);
+    const realtorInitial = (r.name || '?').replace(/[^A-Za-zÀ-ÿ]/g, '').charAt(0).toUpperCase() || '?';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'tour-stop' + (isLove ? ' is-love' : '') + (isViewed ? ' is-viewed' : '') + (isCurrent ? ' is-current' : '');
+    wrap.innerHTML = `
+      <div class="tour-stop-head">
+        <div class="tour-stop-marker">${isViewed ? '<i class="ti ti-check" style="font-size:18px"></i>' : (idx + 1)}</div>
+        <div class="tour-stop-titles">
+          <h3 class="tour-stop-name">${s.name}<span class="tour-stop-now">Now</span></h3>
+          <div class="tour-stop-time"><i class="ti ti-clock"></i>${s.arrive} – ${s.depart}</div>
+        </div>
+      </div>
+      <div class="tour-stop-meta">
+        <span class="tour-stop-price">${tourFmtPrice(s.price)}</span>
+        <span class="tour-stop-tag ${s.type === 'New' ? 'new' : 'resale'}">${s.type === 'New' ? 'New Build' : 'Resale'}</span>
+        <span style="font-size:11px; color:#8a7c6a;">${s.address.replace(/, UT.*/, '')}</span>
+      </div>
+      ${isLove ? `<div class="tour-stop-flag"><i class="ti ti-star-filled"></i> Top pick from your loved list</div>` : ''}
+      ${s.note ? `<div class="tour-stop-note">${s.note}</div>` : ''}
+      <div class="tour-realtor">
+        <div class="tour-realtor-icon">${realtorInitial}</div>
+        <div class="tour-realtor-info">
+          <div class="tour-realtor-label">Listing Agent</div>
+          <div class="tour-realtor-name">${r.name || '—'}</div>
+          ${r.phone ? `<a class="tour-realtor-phone" href="tel:${phoneClean}">${r.phone}</a>` : `<span class="tour-realtor-phone tbd">To be confirmed</span>`}
+        </div>
+        ${callBtn}
+      </div>
+      <div class="tour-actions">
+        <a class="tour-btn primary" href="${tourGoogleMapsUrl(s)}" target="_blank" rel="noopener"><i class="ti ti-navigation"></i> Navigate</a>
+        <a class="tour-btn" href="${tourListingUrl(s)}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i> ${tourListingLabel(s)}</a>
+      </div>
+      <div class="tour-feedback">
+        <div class="tour-feedback-row">
+          <span class="tour-feedback-label">Rate</span>
+          <span class="tour-stars" data-stop="${s.id}">
+            ${[1,2,3,4,5].map(n => `<span class="tour-star ${state.rating >= n ? 'filled' : ''}" data-val="${n}">★</span>`).join('')}
+          </span>
+          <button class="tour-heart-btn ${state.love ? 'active' : ''}" data-stop="${s.id}">
+            <i class="ti ${state.love ? 'ti-heart-filled' : 'ti-heart'}"></i>
+            <span>Love</span>
+          </button>
+        </div>
+        <div class="tour-feedback-row" style="margin-bottom:6px;">
+          <span class="tour-feedback-label">Notes</span>
+        </div>
+        <textarea class="tour-notes" data-stop="${s.id}" rows="1" placeholder="What stood out? Likes, dislikes, layout, light...">${state.notes || ''}</textarea>
+      </div>
+      <div class="tour-mark-row">
+        <button class="tour-mark-btn" data-stop="${s.id}">
+          <i class="ti ${isViewed ? 'ti-check' : 'ti-circle'}"></i>
+          ${isViewed ? 'Viewed' : 'Mark as viewed'}
+        </button>
+      </div>
+    `;
+    container.appendChild(wrap);
+
+    if (s.driveNext && idx < TOUR_STOPS.length - 1) {
+      const bridge = document.createElement('div');
+      bridge.className = 'tour-stop-bridge';
+      bridge.innerHTML = `<i class="ti ti-arrow-down"></i> ${(s.distNext || 0).toFixed(1)} mi · ${s.driveNext} min drive`;
+      container.appendChild(bridge);
+    }
+  });
+
+  // progress bar
+  const total = TOUR_STOPS.length;
+  const fill = el('tour-progress-fill');
+  const count = el('tour-progress-count');
+  if (fill) fill.style.width = (viewedCount / total * 100) + '%';
+  if (count) count.textContent = `${viewedCount} / ${total}`;
+  const tabCount = el('count-tour');
+  if (tabCount) tabCount.textContent = viewedCount === 0 ? '9' : `${viewedCount}/9`;
+
+  // wire interactions
+  container.querySelectorAll('.tour-stars').forEach(grp => {
+    grp.querySelectorAll('.tour-star').forEach(star => {
+      star.addEventListener('click', () => {
+        const val = parseInt(star.dataset.val, 10);
+        const stopId = grp.dataset.stop;
+        const st = tourLoadState(stopId);
+        st.rating = st.rating === val ? 0 : val;
+        grp.querySelectorAll('.tour-star').forEach((s, i) => s.classList.toggle('filled', i < st.rating));
+        tourSaveState(stopId, st);
+      });
+    });
+  });
+  container.querySelectorAll('.tour-heart-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const stopId = btn.dataset.stop;
+      const st = tourLoadState(stopId);
+      st.love = !st.love;
+      btn.classList.toggle('active', st.love);
+      btn.querySelector('i').className = st.love ? 'ti ti-heart-filled' : 'ti ti-heart';
+      tourSaveState(stopId, st);
+    });
+  });
+  container.querySelectorAll('.tour-notes').forEach(input => {
+    const resize = () => { input.style.height = 'auto'; input.style.height = input.scrollHeight + 'px'; };
+    resize();
+    input.addEventListener('input', resize);
+    let t;
+    input.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        const stopId = input.dataset.stop;
+        const st = tourLoadState(stopId);
+        st.notes = input.value;
+        tourSaveState(stopId, st);
+      }, 500);
+    });
+  });
+  container.querySelectorAll('.tour-mark-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const stopId = btn.dataset.stop;
+      const st = tourLoadState(stopId);
+      st.viewed = !st.viewed;
+      st.viewedAt = st.viewed ? new Date().toISOString() : null;
+      tourSaveState(stopId, st);
+      renderTourStops();
+      renderTourMap();
+    });
+  });
+
+  // reset button (only wire once)
+  const resetBtn = el('tour-reset');
+  if (resetBtn && !resetBtn.dataset.wired) {
+    resetBtn.dataset.wired = '1';
+    resetBtn.addEventListener('click', () => {
+      if (!confirm('Reset tour progress? This will mark all stops as not viewed. (Notes and ratings stay.)')) return;
+      TOUR_STOPS.forEach(s => {
+        const st = tourLoadState(s.id);
+        st.viewed = false;
+        st.viewedAt = null;
+        tourSaveState(s.id, st);
+      });
+      renderTourStops();
+      renderTourMap();
+    });
+  }
+}
+
+function renderTourMap() {
+  const mapEl = el('tour-map');
+  if (!mapEl || typeof L === 'undefined') return;
+
+  if (!tourMapInitialized) {
+    const center = [
+      TOUR_STOPS.reduce((a, s) => a + s.lat, 0) / TOUR_STOPS.length,
+      TOUR_STOPS.reduce((a, s) => a + s.lng, 0) / TOUR_STOPS.length
+    ];
+    tourMap = L.map('tour-map', {
+      scrollWheelZoom: false,
+      zoomControl: true,
+      attributionControl: true
+    }).setView(center, 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap · © CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
+    }).addTo(tourMap);
+    tourMapInitialized = true;
+  } else {
+    // size may have changed if tab was hidden
+    setTimeout(() => tourMap.invalidateSize(), 50);
+  }
+
+  // Clear previous layers
+  tourMarkers.forEach(m => tourMap.removeLayer(m));
+  tourMarkers = [];
+  tourLegLabels.forEach(l => tourMap.removeLayer(l));
+  tourLegLabels = [];
+  if (tourPolyline) { tourMap.removeLayer(tourPolyline); tourPolyline = null; }
+  // also remove the shadow line if it exists
+  if (window._tourShadowLine) { tourMap.removeLayer(window._tourShadowLine); }
+
+  const states = TOUR_STOPS.map(s => tourLoadState(s.id));
+  const latlngs = TOUR_STOPS.map(s => [s.lat, s.lng]);
+
+  // shadow + route line
+  window._tourShadowLine = L.polyline(latlngs, { color: '#1a3a3a', weight: 5, opacity: .25, lineCap: 'round' }).addTo(tourMap);
+  tourPolyline = L.polyline(latlngs, { color: '#c08552', weight: 3, opacity: .9, lineCap: 'round', lineJoin: 'round' }).addTo(tourMap);
+
+  // leg labels
+  for (let i = 0; i < TOUR_STOPS.length - 1; i++) {
+    const s = TOUR_STOPS[i];
+    if (!s.driveNext) continue;
+    const a = latlngs[i], b = latlngs[i + 1];
+    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const html = `<div class="tour-leg-label">${(s.distNext || 0).toFixed(1)} mi · ${s.driveNext} min</div>`;
+    const label = L.marker(mid, {
+      icon: L.divIcon({ className: '', html: html, iconSize: null, iconAnchor: [40, 12] }),
+      interactive: false, keyboard: false
+    }).addTo(tourMap);
+    tourLegLabels.push(label);
+  }
+
+  // pins
+  TOUR_STOPS.forEach((s, i) => {
+    const isViewed = states[i].viewed;
+    const isLove = s.flag === 'love';
+    const cls = isViewed ? 'viewed' : (isLove ? 'love' : '');
+    const content = isViewed ? '✓' : (i + 1);
+    const html = `<div class="tour-pin ${cls}">${content}</div>`;
+    const marker = L.marker([s.lat, s.lng], {
+      icon: L.divIcon({ className: '', html: html, iconSize: [32, 32], iconAnchor: [16, 16] }),
+      title: `${i + 1}. ${s.name}`,
+      riseOnHover: true
+    }).addTo(tourMap);
+    const flagText = isLove ? `<br><em style="color:#c08552">Top pick</em>` : '';
+    const distText = s.driveNext ? `<br><span style="font-size:11px;color:#8a7c6a">↓ ${(s.distNext || 0).toFixed(1)} mi · ${s.driveNext} min to next</span>` : '';
+    marker.bindPopup(
+      `<b>${i + 1}. ${s.name}</b><br>` +
+      `<span style="font-size:11px">${s.arrive} – ${s.depart}</span><br>` +
+      `$${s.price.toLocaleString()} · ${s.type === 'New' ? 'New' : 'Resale'}` +
+      flagText + distText,
+      { closeButton: true, autoClose: true }
+    );
+    marker.on('click', () => {
+      setTimeout(() => {
+        const target = document.querySelectorAll('.tour-stop')[i];
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 350);
+    });
+    tourMarkers.push(marker);
+  });
+
+  // fit bounds
+  const bounds = L.latLngBounds(latlngs);
+  tourMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+}
 
 el('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
 
