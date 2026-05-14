@@ -1286,7 +1286,7 @@
     <button class="lodge-tab active" data-tab="discover">Discover</button>
     <button class="lodge-tab" data-tab="liked">Reviewed <span class="lodge-tab-count" id="count-reviewed">0</span></button>
     <button class="lodge-tab" data-tab="compare">Compare</button>
-    <button class="lodge-tab" data-tab="tour">Tour <span class="lodge-tab-count" id="count-tour">9</span></button>
+    <button class="lodge-tab" data-tab="tour">Tour <span class="lodge-tab-count" id="count-tour">8</span></button>
   </div>
 
   <div class="lodge-view active" id="view-discover">
@@ -1355,18 +1355,18 @@
     <div class="tour-hero">
       <div class="tour-hero-eyebrow"><i class="ti ti-calendar-event"></i> Saturday Tour · May 16</div>
       <h2 class="tour-hero-title">Your Saturday in Saratoga</h2>
-      <p class="tour-hero-sub">Nine homes, optimized route, starting at 12:00 PM. Tap any pin or card to jump in.</p>
+      <p class="tour-hero-sub">Eight homes, optimized route, starting at 12:00 PM. Tap any pin or card to jump in.</p>
     </div>
     <div class="tour-summary">
-      <div class="tour-stat"><div class="tour-stat-num">9</div><div class="tour-stat-lbl">Homes</div></div>
-      <div class="tour-stat"><div class="tour-stat-num">27</div><div class="tour-stat-lbl">Drive Min</div></div>
-      <div class="tour-stat"><div class="tour-stat-num">5h 37</div><div class="tour-stat-lbl">Total</div></div>
-      <div class="tour-stat"><div class="tour-stat-num">$476K</div><div class="tour-stat-lbl">Avg Price</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">8</div><div class="tour-stat-lbl">Homes</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">25</div><div class="tour-stat-lbl">Drive Min</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">5h 00</div><div class="tour-stat-lbl">Total</div></div>
+      <div class="tour-stat"><div class="tour-stat-num">$486K</div><div class="tour-stat-lbl">Avg Price</div></div>
     </div>
     <div class="tour-progress-wrap">
       <span class="tour-progress-label">Tour Progress</span>
       <div class="tour-progress-bar"><div class="tour-progress-fill" id="tour-progress-fill"></div></div>
-      <span class="tour-progress-count" id="tour-progress-count">0 / 9</span>
+      <span class="tour-progress-count" id="tour-progress-count">0 / 8</span>
       <button class="tour-reset" id="tour-reset" title="Reset viewed status"><i class="ti ti-refresh"></i></button>
     </div>
     <div class="tour-map-wrap">
@@ -3129,29 +3129,27 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 // SATURDAY TOUR TAB - May 16, 2026
 // ============================================
 const TOUR_STOPS = [
-  { id:"P7",  name:"859 S Mathilda Dr",          address:"859 S Mathilda Dr, Saratoga Springs, UT 84045",         price:484990, type:"New",    lat:40.346255, lng:-111.938398, arrive:"12:00", depart:"12:30", driveNext:3, distNext:1.76,
+  { id:"P7",  name:"859 S Mathilda Dr",          address:"859 S Mathilda Dr, Saratoga Springs, UT 84045",         price:484990, type:"New",    lat:40.346255, lng:-111.938398, arrive:"12:00", depart:"12:30", driveNext:4, distNext:2.48,
     realtor:{ name:"Listing agent", phone:"801-917-5449" } },
-  { id:"P5",  name:"289 N Eaglewood Dr",         address:"289 N Eaglewood Dr, Saratoga Springs, UT 84045",        price:399900, type:"Resale", lat:40.367390, lng:-111.957171, arrive:"12:38", depart:"13:08", driveNext:3, distNext:0.91,
-    realtor:{ name:"Confirm on Zillow", phone:null, lookup:"https://www.zillow.com/homes/289-N-Eaglewood-Dr-Saratoga-Springs-UT-84045_rb/" } },
-  { id:"P2",  name:"1568 W Banner Dr",           address:"1568 W Banner Dr, Saratoga Springs, UT 84045",          price:491900, type:"New",    lat:40.380212, lng:-111.953648, arrive:"13:16", depart:"13:46", driveNext:3, distNext:1.39,
+  { id:"P2",  name:"1568 W Banner Dr",           address:"1568 W Banner Dr, Saratoga Springs, UT 84045",          price:491900, type:"New",    lat:40.380212, lng:-111.953648, arrive:"12:39", depart:"13:09", driveNext:3, distNext:1.39,
     realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
     note:"Same builder as the next stop. Compare them back-to-back." },
-  { id:"P3",  name:"778 N Danverse Dr",          address:"778 N Danverse Dr, Saratoga Springs, UT 84045",         price:505900, type:"New",    lat:40.389956, lng:-111.930630, arrive:"13:54", depart:"14:24", driveNext:3, distNext:0.63,
+  { id:"P3",  name:"778 N Danverse Dr",          address:"778 N Danverse Dr, Saratoga Springs, UT 84045",         price:505900, type:"New",    lat:40.389956, lng:-111.930630, arrive:"13:17", depart:"13:47", driveNext:3, distNext:0.63,
     realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
     note:"Same builder as the previous stop." },
-  { id:"P10", name:"987 W Coral Charm Wy #203",  address:"987 W Coral Charm Wy #203, Saratoga Springs, UT 84045",  price:469000, type:"Resale", lat:40.393323, lng:-111.941755, arrive:"14:32", depart:"15:02", driveNext:3, distNext:0.67,
+  { id:"P10", name:"987 W Coral Charm Wy #203",  address:"987 W Coral Charm Wy #203, Saratoga Springs, UT 84045",  price:469000, type:"Resale", lat:40.393323, lng:-111.941755, arrive:"13:55", depart:"14:25", driveNext:3, distNext:0.67,
     realtor:{ name:"David T Robinson, Canovo Group", phone:"385-233-3252" },
     listing:"https://www.zillow.com/homedetails/987-W-Coral-Charm-Way-203-Saratoga-Springs-UT-84045/342743636_zpid/",
     note:"Townhouse with finished walkout basement (full second kitchen, bedroom, bath, private entry). Lake views from deck." },
-  { id:"P1",  name:"1475 W Bright Eyes Ln",      address:"1475 W Bright Eyes Ln, Saratoga Springs, UT 84045",     price:454900, type:"New",    lat:40.395987, lng:-111.954054, arrive:"15:10", depart:"15:40", driveNext:3, distNext:0.46,
+  { id:"P1",  name:"1475 W Bright Eyes Ln",      address:"1475 W Bright Eyes Ln, Saratoga Springs, UT 84045",     price:454900, type:"New",    lat:40.395987, lng:-111.954054, arrive:"14:33", depart:"15:03", driveNext:3, distNext:0.46,
     realtor:{ name:"Builder sales rep", phone:"801-834-8869" } },
-  { id:"P9",  name:"James Plan · Wildflower",    address:"Lennar at Wildflower, 1832 Blue Flax Dr, Saratoga Springs, UT 84043", price:549900, type:"New", lat:40.397294, lng:-111.962675, arrive:"15:48", depart:"16:18", driveNext:6, distNext:3.35,
+  { id:"P9",  name:"James Plan · Wildflower",    address:"Lennar at Wildflower, 1832 Blue Flax Dr, Saratoga Springs, UT 84043", price:549900, type:"New", lat:40.397294, lng:-111.962675, arrive:"15:11", depart:"15:41", driveNext:6, distNext:3.35,
     realtor:{ name:"Lennar sales rep", phone:"801-834-8869" },
     listing:"https://www.lennar.com/new-homes/utah/salt-lake-city/saratoga-springs/the-valley-at-wildflower/villages/james",
     note:"Lennar model home. Ask about the James floorplan availability and incentives." },
-  { id:"P6",  name:"227 N Riverside Dr",         address:"227 N Riverside Dr, Saratoga Springs, UT 84045",        price:410000, type:"Resale", lat:40.368706, lng:-111.911203, arrive:"16:29", depart:"16:59", driveNext:3, distNext:0.41,
+  { id:"P6",  name:"227 N Riverside Dr",         address:"227 N Riverside Dr, Saratoga Springs, UT 84045",        price:410000, type:"Resale", lat:40.368706, lng:-111.911203, arrive:"15:52", depart:"16:22", driveNext:3, distNext:0.41,
     realtor:{ name:"Confirm on Zillow", phone:null, lookup:"https://www.zillow.com/homes/227-N-Riverside-Dr-Saratoga-Springs-UT-84045_rb/" } },
-  { id:"P8",  name:"44 N Provo River Rd",        address:"44 N Provo River Rd, Saratoga Springs, UT 84045",       price:519990, type:"New",    lat:40.363048, lng:-111.908707, arrive:"17:07", depart:"17:37", driveNext:0, distNext:0, flag:"love",
+  { id:"P8",  name:"44 N Provo River Rd",        address:"44 N Provo River Rd, Saratoga Springs, UT 84045",       price:519990, type:"New",    lat:40.363048, lng:-111.908707, arrive:"16:30", depart:"17:00", driveNext:0, distNext:0, flag:"love",
     realtor:{ name:"Builder sales rep", phone:null },
     note:'Top pick from your "loved" list, "LOVE THIS ONE." Saved for the end so it\'s the freshest impression.' }
 ];
@@ -3276,7 +3274,7 @@ function updateTourTabBadge() {
     return st.viewed;
   }).length;
   const tabCount = el('count-tour');
-  if (tabCount) tabCount.textContent = viewed === 0 ? '9' : `${viewed}/9`;
+  if (tabCount) tabCount.textContent = viewed === 0 ? String(TOUR_STOPS.length) : `${viewed}/${TOUR_STOPS.length}`;
 }
 
 let tourToastTimer;
@@ -3403,7 +3401,7 @@ function renderTourStops() {
   if (fill) fill.style.width = (viewedCount / total * 100) + '%';
   if (count) count.textContent = `${viewedCount} / ${total}`;
   const tabCount = el('count-tour');
-  if (tabCount) tabCount.textContent = viewedCount === 0 ? '9' : `${viewedCount}/9`;
+  if (tabCount) tabCount.textContent = viewedCount === 0 ? String(TOUR_STOPS.length) : `${viewedCount}/${TOUR_STOPS.length}`;
 
   // wire interactions
   container.querySelectorAll('.tour-stars').forEach(grp => {
