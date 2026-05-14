@@ -1285,7 +1285,6 @@
   <div class="lodge-tabs">
     <button class="lodge-tab active" data-tab="discover">Discover</button>
     <button class="lodge-tab" data-tab="liked">Reviewed <span class="lodge-tab-count" id="count-reviewed">0</span></button>
-    <button class="lodge-tab" data-tab="checklist">Must-Haves</button>
     <button class="lodge-tab" data-tab="compare">Compare</button>
     <button class="lodge-tab" data-tab="tour">Tour <span class="lodge-tab-count" id="count-tour">9</span></button>
   </div>
@@ -3514,7 +3513,7 @@ function personalizeLoadingScreen() {
       return;
     }
     // Tab switching: 1, 2, 3, 4
-    const tabMap = { '1': 'discover', '2': 'liked', '3': 'compare', '4': 'checklist' };
+    const tabMap = { '1': 'discover', '2': 'liked', '3': 'compare', '4': 'tour' };
     if (tabMap[e.key]) {
       e.preventDefault();
       const btn = document.querySelector(`.lodge-tab[data-tab="${tabMap[e.key]}"]`);
