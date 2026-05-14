@@ -955,6 +955,20 @@
   }
   .tour-stop-tag.new { color: #c08552; border-color: rgba(192, 133, 82, .4); background: rgba(192, 133, 82, .08); }
   .tour-stop-tag.resale { color: #5a6a5a; border-color: rgba(45, 62, 47, .2); background: #f0ebe0; }
+  .tour-stop-tag.builder {
+    color: #1a3a3a;
+    border-color: rgba(26, 58, 58, .3);
+    background: #e8eded;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tour-stop-tag.builder::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #1a3a3a;
+  }
 
   .tour-stop-flag {
     font-family: var(--font-serif);
@@ -1192,6 +1206,237 @@
   .tour-end-card i { font-size: 22px; color: #2d6a3a; flex-shrink: 0; margin-top: 2px; }
   .tour-end-card strong { color: #1a3a3a; font-family: var(--font-serif); }
 
+  /* ===== Addons section ===== */
+  .tour-addons-section {
+    margin-top: 18px;
+    padding: 18px 16px;
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-radius: var(--border-radius-md);
+    border-top: 3px solid #d4a574;
+  }
+  .tour-addons-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .tour-addons-head > i {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: #d4a574;
+    color: #1a3a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .tour-addons-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a3a3a;
+    margin: 0 0 2px;
+    line-height: 1.2;
+  }
+  .tour-addons-sub {
+    font-size: 12px;
+    color: #5a6a5a;
+    margin: 0;
+    line-height: 1.4;
+  }
+  .tour-addon-toggle {
+    width: 100%;
+    padding: 14px;
+    background: #f7f2e6;
+    border: 1px dashed rgba(192, 133, 82, .5);
+    border-radius: var(--border-radius-md);
+    color: #c08552;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all .2s;
+  }
+  .tour-addon-toggle:hover {
+    background: rgba(192, 133, 82, .12);
+    border-color: #c08552;
+    border-style: solid;
+  }
+  .tour-addon-toggle i { font-size: 18px; }
+  .tour-addon-toggle.active {
+    background: #1a3a3a;
+    border-color: #1a3a3a;
+    color: #faf7f0;
+    border-style: solid;
+  }
+
+  .tour-addon-form {
+    margin-top: 12px;
+    padding: 14px;
+    background: #f7f2e6;
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(45, 62, 47, 0.1);
+    animation: addon-slide .25s ease-out;
+  }
+  @keyframes addon-slide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .tour-addon-field { margin-bottom: 12px; }
+  .tour-addon-field:last-of-type { margin-bottom: 0; }
+  .tour-addon-field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    color: #8a7c6a;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .tour-addon-field label .req { color: #a83a30; margin-left: 2px; }
+  .tour-addon-field input,
+  .tour-addon-field select,
+  .tour-addon-field textarea {
+    width: 100%;
+    padding: 9px 11px;
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.18);
+    border-radius: 5px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: #2d3e2f;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .tour-addon-field textarea {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+  .tour-addon-field input:focus,
+  .tour-addon-field select:focus,
+  .tour-addon-field textarea:focus {
+    outline: none;
+    border-color: #c08552;
+    box-shadow: 0 0 0 2px rgba(192, 133, 82, .15);
+  }
+  .tour-addon-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .tour-addon-row .tour-addon-field { margin-bottom: 0; }
+  .tour-addon-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .tour-addon-error {
+    color: #a83a30;
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .tour-addons-list {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tour-addon-card {
+    background: #fffdf7;
+    border: 1px solid rgba(45, 62, 47, 0.12);
+    border-left: 3px solid #d4a574;
+    border-radius: var(--border-radius-md);
+    padding: 14px;
+    position: relative;
+    animation: addon-slide .3s ease-out;
+  }
+  .tour-addon-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .tour-addon-card-title {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a3a3a;
+    margin: 0;
+    line-height: 1.25;
+    flex: 1;
+  }
+  .tour-addon-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #5a6a5a;
+  }
+  .tour-addon-card-price {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a3a3a;
+  }
+  .tour-addon-card-notes {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: #5a6a5a;
+    line-height: 1.4;
+    background: #f7f2e6;
+    padding: 8px 10px;
+    border-radius: 4px;
+  }
+  .tour-addon-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .tour-addon-icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid rgba(45, 62, 47, 0.15);
+    color: #5a6a5a;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all .15s;
+  }
+  .tour-addon-icon-btn:hover { color: #c08552; border-color: #c08552; }
+  .tour-addon-icon-btn.danger:hover { color: #a83a30; border-color: #a83a30; }
+  .tour-addon-empty {
+    font-size: 12px;
+    color: #8a7c6a;
+    font-style: italic;
+    text-align: center;
+    padding: 14px;
+    background: #f7f2e6;
+    border-radius: var(--border-radius-md);
+    border: 1px dashed rgba(45, 62, 47, 0.15);
+  }
+  .tour-addon-empty.hidden { display: none; }
+
   .tour-save-toast {
     position: fixed;
     bottom: 18px;
@@ -1378,6 +1623,53 @@
       </div>
     </div>
     <div class="tour-stops" id="tour-stops"></div>
+
+    <div class="tour-addons-section">
+      <div class="tour-addons-head">
+        <i class="ti ti-plus"></i>
+        <div>
+          <h3 class="tour-addons-title">Found another home you love?</h3>
+          <p class="tour-addons-sub">Add it here. Cristian will see your notes in real time.</p>
+        </div>
+      </div>
+
+      <button class="tour-addon-toggle" id="tour-addon-toggle">
+        <i class="ti ti-home-plus"></i>
+        <span>Add a home we found along the way</span>
+      </button>
+
+      <div class="tour-addon-form" id="tour-addon-form" hidden>
+        <div class="tour-addon-field">
+          <label>Address <span class="req">*</span></label>
+          <input type="text" id="addon-address" placeholder="e.g. 1234 W Some Street, Saratoga Springs" autocomplete="off">
+        </div>
+        <div class="tour-addon-row">
+          <div class="tour-addon-field">
+            <label>Approx. price (optional)</label>
+            <input type="text" id="addon-price" placeholder="$485,000" inputmode="numeric" autocomplete="off">
+          </div>
+          <div class="tour-addon-field">
+            <label>Type</label>
+            <select id="addon-type">
+              <option value="">Not sure</option>
+              <option value="New">New Build</option>
+              <option value="Resale">Resale</option>
+            </select>
+          </div>
+        </div>
+        <div class="tour-addon-field">
+          <label>Your notes</label>
+          <textarea id="addon-notes" rows="3" placeholder="What stood out? Why did you stop?"></textarea>
+        </div>
+        <div class="tour-addon-buttons">
+          <button class="tour-btn" id="addon-cancel" type="button">Cancel</button>
+          <button class="tour-btn primary" id="addon-save" type="button"><i class="ti ti-check"></i> Save home</button>
+        </div>
+      </div>
+
+      <div class="tour-addons-list" id="tour-addons-list"></div>
+    </div>
+
     <div class="tour-end-card">
       <i class="ti ti-flag-check"></i>
       <div><strong>That's the day.</strong> Notes and ratings save automatically to your phone. Cristian will see them when you share back.</div>
@@ -3129,28 +3421,28 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
 // SATURDAY TOUR TAB - May 16, 2026
 // ============================================
 const TOUR_STOPS = [
-  { id:"P7",  name:"859 S Mathilda Dr",          address:"859 S Mathilda Dr, Saratoga Springs, UT 84045",         price:484990, type:"New",    lat:40.346255, lng:-111.938398, arrive:"12:00", depart:"12:30", driveNext:4, distNext:2.48,
+  { id:"P7",  name:"859 S Mathilda Dr",          address:"859 S Mathilda Dr, Saratoga Springs, UT 84045",         price:484990, type:"New",    builder:null, lat:40.346255, lng:-111.938398, arrive:"12:00", depart:"12:30", driveNext:4, distNext:2.48,
     realtor:{ name:"Listing agent", phone:"801-917-5449" } },
-  { id:"P2",  name:"1568 W Banner Dr",           address:"1568 W Banner Dr, Saratoga Springs, UT 84045",          price:491900, type:"New",    lat:40.380212, lng:-111.953648, arrive:"12:39", depart:"13:09", driveNext:3, distNext:1.39,
-    realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
+  { id:"P2",  name:"1568 W Banner Dr",           address:"1568 W Banner Dr, Saratoga Springs, UT 84045",          price:491900, type:"New",    builder:"Arive Homes", lat:40.380212, lng:-111.953648, arrive:"12:39", depart:"13:09", driveNext:3, distNext:1.39,
+    realtor:{ name:"Arive Homes sales rep", phone:"801-234-0949" },
     note:"Same builder as the next stop. Compare them back-to-back." },
-  { id:"P3",  name:"778 N Danverse Dr",          address:"778 N Danverse Dr, Saratoga Springs, UT 84045",         price:505900, type:"New",    lat:40.389956, lng:-111.930630, arrive:"13:17", depart:"13:47", driveNext:3, distNext:0.63,
-    realtor:{ name:"Builder sales rep", phone:"801-234-0949" },
+  { id:"P3",  name:"778 N Danverse Dr",          address:"778 N Danverse Dr, Saratoga Springs, UT 84045",         price:505900, type:"New",    builder:"Arive Homes", lat:40.389956, lng:-111.930630, arrive:"13:17", depart:"13:47", driveNext:3, distNext:0.63,
+    realtor:{ name:"Arive Homes sales rep", phone:"801-234-0949" },
     note:"Same builder as the previous stop." },
-  { id:"P10", name:"987 W Coral Charm Wy #203",  address:"987 W Coral Charm Wy #203, Saratoga Springs, UT 84045",  price:469000, type:"Resale", lat:40.393323, lng:-111.941755, arrive:"13:55", depart:"14:25", driveNext:3, distNext:0.67,
+  { id:"P10", name:"987 W Coral Charm Wy #203",  address:"987 W Coral Charm Wy #203, Saratoga Springs, UT 84045",  price:469000, type:"Resale", builder:null, lat:40.393323, lng:-111.941755, arrive:"13:55", depart:"14:25", driveNext:3, distNext:0.67,
     realtor:{ name:"David T Robinson, Canovo Group", phone:"385-233-3252" },
     listing:"https://www.zillow.com/homedetails/987-W-Coral-Charm-Way-203-Saratoga-Springs-UT-84045/342743636_zpid/",
     note:"Townhouse with finished walkout basement (full second kitchen, bedroom, bath, private entry). Lake views from deck." },
-  { id:"P1",  name:"1475 W Bright Eyes Ln",      address:"1475 W Bright Eyes Ln, Saratoga Springs, UT 84045",     price:454900, type:"New",    lat:40.395987, lng:-111.954054, arrive:"14:33", depart:"15:03", driveNext:3, distNext:0.46,
-    realtor:{ name:"Builder sales rep", phone:"801-834-8869" } },
-  { id:"P9",  name:"James Plan · Wildflower",    address:"Lennar at Wildflower, 1832 Blue Flax Dr, Saratoga Springs, UT 84043", price:549900, type:"New", lat:40.397294, lng:-111.962675, arrive:"15:11", depart:"15:41", driveNext:6, distNext:3.35,
+  { id:"P1",  name:"1475 W Bright Eyes Ln",      address:"1475 W Bright Eyes Ln, Saratoga Springs, UT 84045",     price:454900, type:"New",    builder:"Lennar", lat:40.395987, lng:-111.954054, arrive:"14:33", depart:"15:03", driveNext:3, distNext:0.46,
+    realtor:{ name:"Lennar sales rep", phone:"801-834-8869" } },
+  { id:"P9",  name:"James Plan · Wildflower",    address:"Lennar at Wildflower, 1832 Blue Flax Dr, Saratoga Springs, UT 84043", price:549900, type:"New", builder:"Lennar", lat:40.397294, lng:-111.962675, arrive:"15:11", depart:"15:41", driveNext:6, distNext:3.35,
     realtor:{ name:"Lennar sales rep", phone:"801-834-8869" },
     listing:"https://www.lennar.com/new-homes/utah/salt-lake-city/saratoga-springs/the-valley-at-wildflower/villages/james",
     note:"Lennar model home. Ask about the James floorplan availability and incentives." },
-  { id:"P6",  name:"227 N Riverside Dr",         address:"227 N Riverside Dr, Saratoga Springs, UT 84045",        price:410000, type:"Resale", lat:40.368706, lng:-111.911203, arrive:"15:52", depart:"16:22", driveNext:3, distNext:0.41,
+  { id:"P6",  name:"227 N Riverside Dr",         address:"227 N Riverside Dr, Saratoga Springs, UT 84045",        price:410000, type:"Resale", builder:null, lat:40.368706, lng:-111.911203, arrive:"15:52", depart:"16:22", driveNext:3, distNext:0.41,
     realtor:{ name:"Confirm on Zillow", phone:null, lookup:"https://www.zillow.com/homes/227-N-Riverside-Dr-Saratoga-Springs-UT-84045_rb/" } },
-  { id:"P8",  name:"44 N Provo River Rd",        address:"44 N Provo River Rd, Saratoga Springs, UT 84045",       price:519990, type:"New",    lat:40.363048, lng:-111.908707, arrive:"16:30", depart:"17:00", driveNext:0, distNext:0, flag:"love",
-    realtor:{ name:"Builder sales rep", phone:null },
+  { id:"P8",  name:"44 N Provo River Rd",        address:"44 N Provo River Rd, Saratoga Springs, UT 84045",       price:519990, type:"New",    builder:null, lat:40.363048, lng:-111.908707, arrive:"16:30", depart:"17:00", driveNext:0, distNext:0, flag:"love",
+    realtor:{ name:"Nina Fale", phone:"808-383-2715" },
     note:'Top pick from your "loved" list, "LOVE THIS ONE." Saved for the end so it\'s the freshest impression.' }
 ];
 
@@ -3277,6 +3569,189 @@ function updateTourTabBadge() {
   if (tabCount) tabCount.textContent = viewed === 0 ? String(TOUR_STOPS.length) : `${viewed}/${TOUR_STOPS.length}`;
 }
 
+// ===== TOUR ADD-ONS =====
+// Homes Alejandra discovers during the tour and wants to remember.
+// Stored under clients/{CODE}/tour_addons/{addonId} so they don't conflict
+// with the planned stop list. Live-syncs the same way.
+const TOUR_ADDONS_STORAGE = 'tour_addons:list';
+let tourAddons = {};  // { addonId: { address, price, type, notes, createdAt } }
+let tourAddonsListenerWired = false;
+
+function tourAddonsLoadLocal() {
+  try {
+    const raw = localStorage.getItem(TOUR_ADDONS_STORAGE);
+    if (raw) tourAddons = JSON.parse(raw) || {};
+  } catch (e) { tourAddons = {}; }
+}
+function tourAddonsSaveLocal() {
+  try { localStorage.setItem(TOUR_ADDONS_STORAGE, JSON.stringify(tourAddons)); } catch (e) {}
+}
+
+function tourAddonSetupSync() {
+  if (tourAddonsListenerWired) return;
+  if (typeof CLIENT_CODE === 'undefined' || !CLIENT_CODE) return;
+  if (typeof db === 'undefined' || !db) return;
+  tourAddonsListenerWired = true;
+  const ref = db.ref('clients/' + CLIENT_CODE + '/tour_addons');
+  ref.once('value').then(snap => {
+    const data = snap.val();
+    if (data && typeof data === 'object') {
+      tourAddons = data;
+      tourAddonsSaveLocal();
+      renderTourAddons();
+    }
+  }).catch(err => console.log('Tour addons load failed:', err));
+  ref.on('value', snap => {
+    const data = snap.val() || {};
+    // shallow compare to avoid loops on our own write
+    if (JSON.stringify(data) === JSON.stringify(tourAddons)) return;
+    tourAddons = data;
+    tourAddonsSaveLocal();
+    renderTourAddons();
+  });
+}
+
+function tourAddonSaveToFirebase(addonId, addon) {
+  if (typeof CLIENT_CODE === 'undefined' || !CLIENT_CODE) return;
+  if (typeof db === 'undefined' || !db) return;
+  showSyncStatus('syncing');
+  db.ref('clients/' + CLIENT_CODE + '/tour_addons/' + addonId)
+    .set({ ...addon, updatedAt: firebase.database.ServerValue.TIMESTAMP })
+    .then(() => showSyncStatus('synced'))
+    .catch(err => { console.log('Addon save failed:', err); showSyncStatus('error'); });
+}
+function tourAddonDeleteFromFirebase(addonId) {
+  if (typeof CLIENT_CODE === 'undefined' || !CLIENT_CODE) return;
+  if (typeof db === 'undefined' || !db) return;
+  showSyncStatus('syncing');
+  db.ref('clients/' + CLIENT_CODE + '/tour_addons/' + addonId)
+    .remove()
+    .then(() => showSyncStatus('synced'))
+    .catch(err => { console.log('Addon delete failed:', err); showSyncStatus('error'); });
+}
+
+function fmtAddonPrice(p) {
+  if (!p) return '';
+  const n = parseInt(String(p).replace(/[^0-9]/g, ''), 10);
+  if (!n) return '';
+  return '$' + n.toLocaleString();
+}
+
+function renderTourAddons() {
+  const listEl = el('tour-addons-list');
+  if (!listEl) return;
+  const entries = Object.entries(tourAddons).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+  if (entries.length === 0) {
+    listEl.innerHTML = '';
+    return;
+  }
+  listEl.innerHTML = entries.map(([id, a]) => `
+    <div class="tour-addon-card" data-addon-id="${id}">
+      <div class="tour-addon-card-head">
+        <h4 class="tour-addon-card-title">${escapeHtml(a.address || 'Untitled home')}</h4>
+        <div class="tour-addon-card-actions">
+          <button class="tour-addon-icon-btn" data-action="edit" data-id="${id}" title="Edit"><i class="ti ti-edit"></i></button>
+          <button class="tour-addon-icon-btn danger" data-action="delete" data-id="${id}" title="Remove"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>
+      <div class="tour-addon-card-meta">
+        ${a.price ? `<span class="tour-addon-card-price">${fmtAddonPrice(a.price)}</span>` : ''}
+        ${a.type ? `<span class="tour-stop-tag ${a.type === 'New' ? 'new' : 'resale'}">${a.type === 'New' ? 'New Build' : 'Resale'}</span>` : ''}
+      </div>
+      ${a.notes ? `<div class="tour-addon-card-notes">${escapeHtml(a.notes)}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Wire actions
+  listEl.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      if (action === 'delete') {
+        if (!confirm('Remove this home from your tour notes?')) return;
+        delete tourAddons[id];
+        tourAddonsSaveLocal();
+        tourAddonDeleteFromFirebase(id);
+        renderTourAddons();
+      } else if (action === 'edit') {
+        const a = tourAddons[id];
+        el('addon-address').value = a.address || '';
+        el('addon-price').value = a.price || '';
+        el('addon-type').value = a.type || '';
+        el('addon-notes').value = a.notes || '';
+        el('addon-save').dataset.editingId = id;
+        el('addon-save').innerHTML = '<i class="ti ti-check"></i> Update home';
+        el('tour-addon-form').hidden = false;
+        el('tour-addon-toggle').classList.add('active');
+        el('tour-addon-toggle').querySelector('span').textContent = 'Editing a home';
+        el('tour-addon-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function tourAddonsResetForm() {
+  el('addon-address').value = '';
+  el('addon-price').value = '';
+  el('addon-type').value = '';
+  el('addon-notes').value = '';
+  delete el('addon-save').dataset.editingId;
+  el('addon-save').innerHTML = '<i class="ti ti-check"></i> Save home';
+  el('tour-addon-form').hidden = true;
+  el('tour-addon-toggle').classList.remove('active');
+  el('tour-addon-toggle').querySelector('span').textContent = 'Add a home we found along the way';
+}
+
+function tourAddonsWireForm() {
+  const toggle = el('tour-addon-toggle');
+  if (!toggle || toggle.dataset.wired) return;
+  toggle.dataset.wired = '1';
+
+  toggle.addEventListener('click', () => {
+    const form = el('tour-addon-form');
+    const isOpen = !form.hidden;
+    if (isOpen) {
+      tourAddonsResetForm();
+    } else {
+      form.hidden = false;
+      toggle.classList.add('active');
+      toggle.querySelector('span').textContent = 'Hide form';
+      setTimeout(() => el('addon-address').focus(), 100);
+    }
+  });
+
+  el('addon-cancel').addEventListener('click', tourAddonsResetForm);
+
+  el('addon-save').addEventListener('click', () => {
+    const address = el('addon-address').value.trim();
+    if (!address) {
+      el('addon-address').focus();
+      el('addon-address').style.borderColor = '#a83a30';
+      setTimeout(() => el('addon-address').style.borderColor = '', 1500);
+      return;
+    }
+    const editingId = el('addon-save').dataset.editingId;
+    const id = editingId || ('add_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7));
+    const addon = {
+      address: address,
+      price: el('addon-price').value.trim() || null,
+      type: el('addon-type').value || null,
+      notes: el('addon-notes').value.trim() || '',
+      createdAt: editingId ? (tourAddons[editingId]?.createdAt || Date.now()) : Date.now()
+    };
+    tourAddons[id] = addon;
+    tourAddonsSaveLocal();
+    tourAddonSaveToFirebase(id, addon);
+    tourToast();
+    tourAddonsResetForm();
+    renderTourAddons();
+  });
+}
+
 let tourToastTimer;
 function tourToast() {
   let t = el('tour-save-toast');
@@ -3301,7 +3776,11 @@ function tourListingLabel(s) { return s.id === 'P9' ? 'Lennar' : 'Zillow'; }
 
 function initTourTab() {
   setupTourFirebaseSync();
+  tourAddonsLoadLocal();
+  tourAddonSetupSync();
   renderTourStops();
+  renderTourAddons();
+  tourAddonsWireForm();
   // give the tab time to become visible before initializing Leaflet
   // (Leaflet needs the container to have measurable dimensions)
   setTimeout(() => renderTourMap(), 60);
@@ -3325,7 +3804,7 @@ function renderTourStops() {
     const r = s.realtor || {};
     const phoneClean = r.phone ? r.phone.replace(/[^0-9+]/g, '') : '';
     const callBtn = r.phone
-      ? `<a class="tour-call-btn" href="tel:${phoneClean}"><i class="ti ti-phone"></i> Call</a>`
+      ? `<a class="tour-call-btn" href="sms:${phoneClean}?body=${encodeURIComponent(`Hi, this is Cristian Millán with Real Brokerage. I'm running a private tour with my client today and we're heading to ${s.address.replace(/, UT.*/, '')}. What's your availability?`)}"><i class="ti ti-message-circle"></i> Text</a>`
       : (r.lookup
           ? `<a class="tour-call-btn lookup" href="${r.lookup}" target="_blank" rel="noopener"><i class="ti ti-search"></i> Find on Zillow</a>`
           : `<span class="tour-call-btn disabled"><i class="ti ti-phone-off"></i> No contact</span>`);
@@ -3344,6 +3823,7 @@ function renderTourStops() {
       <div class="tour-stop-meta">
         <span class="tour-stop-price">${tourFmtPrice(s.price)}</span>
         <span class="tour-stop-tag ${s.type === 'New' ? 'new' : 'resale'}">${s.type === 'New' ? 'New Build' : 'Resale'}</span>
+        ${s.builder ? `<span class="tour-stop-tag builder">${s.builder}</span>` : ''}
         <span style="font-size:11px; color:#8a7c6a;">${s.address.replace(/, UT.*/, '')}</span>
       </div>
       ${isLove ? `<div class="tour-stop-flag"><i class="ti ti-star-filled"></i> Top pick from your loved list</div>` : ''}
@@ -3353,7 +3833,7 @@ function renderTourStops() {
         <div class="tour-realtor-info">
           <div class="tour-realtor-label">Listing Agent</div>
           <div class="tour-realtor-name">${r.name || '—'}</div>
-          ${r.phone ? `<a class="tour-realtor-phone" href="tel:${phoneClean}">${r.phone}</a>` : `<span class="tour-realtor-phone tbd">To be confirmed</span>`}
+          ${r.phone ? `<a class="tour-realtor-phone" href="sms:${phoneClean}">${r.phone}</a>` : `<span class="tour-realtor-phone tbd">To be confirmed</span>`}
         </div>
         ${callBtn}
       </div>
@@ -3645,7 +4125,11 @@ if (!CLIENT_CODE || !CLIENT_NAMES[CLIENT_CODE]) {
   load();
   // Start syncing tour data in the background so the tab badge updates
   // even before the user opens the Tour tab
-  setTimeout(() => setupTourFirebaseSync(), 200);
+  setTimeout(() => {
+    setupTourFirebaseSync();
+    tourAddonsLoadLocal();
+    tourAddonSetupSync();
+  }, 200);
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === state.filter));
   document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.view === state.reviewView));
   renderStack();
